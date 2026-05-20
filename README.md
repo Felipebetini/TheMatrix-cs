@@ -24,6 +24,7 @@ An open-source template for running a team of AI agents that handle support tick
 ## Table of contents
 
 - [Quick start](#quick-start)
+- [Versioning](#versioning)
 - [Adapting it to your team](#adapting-it-to-your-team)
 - [It grows with every ticket](#it-grows-with-every-ticket)
 - [Works with any LLM](#works-with-any-llm)
@@ -46,26 +47,6 @@ An open-source template for running a team of AI agents that handle support tick
 ---
 
 ## Quick start
-
-
-## Versioning
-
-This repo uses Semantic Versioning.
-
-- Current version: `VERSION`
-- Release notes: `CHANGELOG.md`
-- Bump helper: `./scripts/version.sh`
-
-Examples:
-
-```bash
-./scripts/version.sh patch
-./scripts/version.sh minor
-./scripts/version.sh major --tag
-```
-
-`--tag` also commits `VERSION` + `CHANGELOG.md` and creates `vX.Y.Z` tag.
-
 
 Install at least one AI CLI (any combination works):
 
@@ -139,6 +120,26 @@ rm /tmp/matrix-ticket.flag
 ```
 
 > **First run:** the launcher detects unconfigured state and walks you through setup automatically. Or run `./scripts/setup.sh` directly. See `SETUP.md` for the full guide.
+
+---
+
+## Versioning
+
+This repo uses Semantic Versioning.
+
+- Current version: `VERSION`
+- Release notes: `CHANGELOG.md`
+- Bump helper: `./scripts/version.sh`
+
+Examples:
+
+```bash
+./scripts/version.sh patch
+./scripts/version.sh minor
+./scripts/version.sh major --tag
+```
+
+`--tag` also commits `VERSION` + `CHANGELOG.md` and creates `vX.Y.Z` tag.
 
 ---
 
@@ -368,13 +369,7 @@ The Ralph Loop ensures Gate E runs. Gate E ensures write-back completes before t
 
 ### 6. Multi-model routing
 
-Different agents run on different models because different tasks have fundamentally different requirements:
-
-| Model | Strength | Agents |
-|-------|---------|--------|
-| **Claude** | Long-horizon reasoning, file write-back, interactive judgment | Smith, Senior, Cypher, Seraph, Trinity, Commander |
-| **Codex** | Fast execution, clean diffs, pre-loaded context | Junior, Midlevel |
-| **Gemini** | Very large context, 50+ files without degrading | Oracle |
+Different agents run on different models because different tasks have fundamentally different requirements (see the routing table in [Works with any LLM](#works-with-any-llm)).
 
 `activate.sh` routes automatically: primary model per agent type, automatic fallback if unavailable, clipboard fallback if no CLI is installed.
 
@@ -520,12 +515,7 @@ Each character in the 1999 Wachowski film maps to a function in the system. The 
 
 ## The live dashboard
 
-A terminal-style dashboard served locally on `localhost:2025`.
-
-```bash
-./scripts/dashboard.sh        # start and open browser
-./scripts/dashboard.sh stop   # kill the server
-```
+A terminal-style dashboard served locally on `localhost:2025`. Commands are in [Quick start](#quick-start).
 
 Shows in real time:
 - Active agent and project

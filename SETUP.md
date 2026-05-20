@@ -8,7 +8,7 @@ This guide covers everything you need to change to make The Matrix work for your
 
 ## Prerequisites
 
-| Tool | Required for | Install |
+| Tool | Primary use | Install |
 |------|-------------|---------|
 | Claude Code CLI | Smith, Senior, Seraph, all orchestration | `npm install -g @anthropic-ai/claude-code` |
 | Codex CLI | Junior, Midlevel workers | `npm install -g @openai/codex` |
@@ -16,17 +16,19 @@ This guide covers everything you need to change to make The Matrix work for your
 | Python 3 | Dashboard, track-tool hook | standard on macOS/Linux |
 | Bash | All scripts | standard |
 
-All three AI CLIs are optional — the system falls back gracefully. Claude alone is sufficient to get started.
+You only need one CLI to get started. Claude alone is sufficient — the system falls back gracefully when a CLI is missing. To check what's installed: `./scripts/activate.sh status`
 
 ---
 
 ## Step 1 — Clone and make scripts executable
 
 ```bash
-git clone https://github.com/your-org/the-matrix.git
-cd the-matrix
+git clone https://github.com/Felipebetini/TheMatrix-cs.git
+cd TheMatrix-cs
 chmod +x scripts/*.sh
 ```
+
+> **Shortcut:** run `./scripts/setup.sh` after cloning. It walks you through Steps 2–4 interactively and is safe to re-run. The launcher (`./scripts/matrix.sh`) also runs it automatically when ZION is unconfigured.
 
 ---
 
@@ -57,7 +59,12 @@ Keep ZION under 400 tokens. It must fit in the prompt cache and load on every se
 
 ## Step 4 — Create your first project
 
-Copy the template:
+Run the new-project script:
+```bash
+./scripts/new-project.sh
+```
+
+Or copy the template manually:
 ```bash
 cp -r projects/_template projects/your-project-slug
 ```
@@ -122,6 +129,16 @@ rm /tmp/matrix-ticket.flag
 ```
 
 The dashboard shows active agent, current tool, Gate E status, and a live event log. It reads `/tmp/matrix-state.json` and `/tmp/matrix-events.jsonl` written by the PreToolUse hook.
+
+---
+
+## Step 7b — Enable Codex telemetry (optional)
+
+If you'll use Codex agents, wire up the usage hooks for live token monitoring in the dashboard:
+
+```bash
+./scripts/setup-codex-hooks.sh
+```
 
 ---
 
