@@ -17,7 +17,18 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 scripts/track-tool.py"
+            "command": "bash scripts/track-tool.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/track-usage-live.sh"
           }
         ]
       }

@@ -47,6 +47,26 @@ An open-source template for running a team of AI agents that handle support tick
 
 ## Quick start
 
+
+## Versioning
+
+This repo uses Semantic Versioning.
+
+- Current version: `VERSION`
+- Release notes: `CHANGELOG.md`
+- Bump helper: `./scripts/version.sh`
+
+Examples:
+
+```bash
+./scripts/version.sh patch
+./scripts/version.sh minor
+./scripts/version.sh major --tag
+```
+
+`--tag` also commits `VERSION` + `CHANGELOG.md` and creates `vX.Y.Z` tag.
+
+
 Install at least one AI CLI (any combination works):
 
 ```bash
@@ -79,10 +99,21 @@ chmod +x scripts/*.sh
 
 ```bash
 ./scripts/dashboard.sh          # start and open browser at localhost:2025
+./scripts/dashboard.sh test     # start in preview/test mode
 ./scripts/dashboard.sh stop     # kill the server
 ```
 
 Keep the dashboard open on a second screen while the agent works in your terminal.
+
+
+For live token telemetry:
+
+```bash
+# one-time for Codex
+./scripts/setup-codex-hooks.sh
+```
+
+The dashboard supports per-session monitoring via a session selector in the header, so parallel tickets (e.g. Claude + Codex in separate terminals) can be observed independently.
 
 **What the LLM selection looks like:**
 

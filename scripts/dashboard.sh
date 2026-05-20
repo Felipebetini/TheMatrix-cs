@@ -1,59 +1,63 @@
 #!/usr/bin/env bash
-# Matrix Dashboard Launcher
+# The Matrix — Dashboard Launcher
 #
 # Usage:
-#   ./scripts/dashboard.sh          ← start + open browser
-#   ./scripts/dashboard.sh stop     ← kill the server
-#
-# Dashboard polls /tmp/matrix-state.json and /tmp/matrix-events.jsonl.
-# Keep it open on a second screen while the agent works in your terminal.
+#   ./scripts/dashboard.sh          # start server + open browser
+#   ./scripts/dashboard.sh test     # start server + open browser in test mode
+#   ./scripts/dashboard.sh stop     # kill the server
 
 VAULT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PORT=2025
+PID_FILE="/tmp/matrix-dashboard.pid"
 
-# ─── Stop ──────────────────────────────────────────────────────────────────────
+case "${1:-start}" in
 
-if [ "${1:-}" = "stop" ]; then
-    PID=$(lsof -ti :"$PORT" 2>/dev/null)
-    if [ -n "$PID" ]; then
-        kill "$PID" 2>/dev/null
-        echo "  Dashboard stopped."
+  stop)
+    if [ -f "$PID_FILE" ]; then
+      kill "$(cat "$PID_FILE")" 2>/dev/null
+      rm -f "$PID_FILE"
+      echo "  ◼  Matrix dashboard stopped"
     else
-        echo "  Dashboard is not running on port $PORT."
+      echo "  Dashboard is not running"
     fi
-    exit 0
-fi
+    ;;
 
-# ─── Start ─────────────────────────────────────────────────────────────────────
+  test)
+    # Already running?
+    if [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
+      echo "  Dashboard already running at http://localhost:$PORT"
+      open "http://localhost:$PORT/?mode=test"
+      exit 0
+    fi
 
-# Check if already running
-if lsof -i :"$PORT" &>/dev/null 2>&1; then
-    echo "  Dashboard already running → http://localhost:$PORT"
-    open "http://localhost:$PORT" 2>/dev/null || true
-    exit 0
-fi
+    echo ""
+    echo "  ▶  Starting Matrix dashboard (TEST MODE) on http://localhost:$PORT"
+    echo ""
 
-echo ""
-echo "  Starting Matrix dashboard → http://localhost:$PORT"
-echo ""
+    python3 "$VAULT/scripts/matrix-dashboard.py" &
+    echo $! > "$PID_FILE"
 
-# Start server in background
-python3 "$VAULT/scripts/matrix-dashboard.py" &
-SERVER_PID=$!
+    sleep 0.6
+    open "http://localhost:$PORT/?mode=test"
+    ;;
 
-# Wait for server to be ready
-sleep 0.5
+  start|*)
+    # Already running?
+    if [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
+      echo "  Dashboard already running at http://localhost:$PORT"
+      open "http://localhost:$PORT"
+      exit 0
+    fi
 
-# Open browser
-if command -v open &>/dev/null; then
+    echo ""
+    echo "  ▶  Starting Matrix dashboard on http://localhost:$PORT"
+    echo ""
+
+    python3 "$VAULT/scripts/matrix-dashboard.py" &
+    echo $! > "$PID_FILE"
+
+    sleep 0.6
     open "http://localhost:$PORT"
-elif command -v xdg-open &>/dev/null; then
-    xdg-open "http://localhost:$PORT"
-fi
+    ;;
 
-echo "  Dashboard PID: $SERVER_PID"
-echo "  Press Ctrl+C to stop"
-echo ""
-
-# Keep running until interrupted
-wait $SERVER_PID
+esac
