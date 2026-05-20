@@ -217,12 +217,12 @@ When the operator confirms the fix is working:
 
 ```
 Close gate checklist:
-[ ] 10a — CHANGELOG.md updated
-[ ] 10b — INCIDENT_LOG.md updated (or created)
-[ ] 10c — ERROR_SIGNATURES.md checked for new patterns
-[ ] 10d — INCIDENT_PATTERNS.md checked for cross-project match
-[ ] 10e — Ticket record created
-[ ] 10f — All unknown fields discovered this session written back
+[ ] 10a — projects/[slug]/CHANGELOG.md updated
+[ ] 10b — projects/[slug]/INCIDENT_LOG.md updated
+[ ] 10c — projects/[slug]/ERROR_SIGNATURES.md checked for new patterns
+[ ] 10d — memory/INCIDENT_PATTERNS.md checked for cross-project match
+[ ] 10e — tickets/[INC-ID]-[slug].md created
+[ ] 10f — All unknown fields discovered this session written back to RSI.yaml
 ```
 
 Only after all boxes are checked:
@@ -230,14 +230,26 @@ Only after all boxes are checked:
 
 **Remove flag:** run `rm -f /tmp/matrix-ticket.flag`
 
-### 10a — CHANGELOG.md
+### 10a — projects/[slug]/CHANGELOG.md
+Append one row:
 ```
 | [YYYY-MM-DD] | [INC-ID] | [type] | [what changed] | [what it affects] | [tested how] | Operator |
 ```
 Types: `fix` / `config` / `integration` / `dependency-update` / `content` / `security`
 
-### 10d — INCIDENT_PATTERNS.md
-Read the file. Does this ticket's root cause match any existing pattern? If yes, add the project and INC-ID to that pattern. If no — and the root cause could affect other projects — create a new P-### entry.
+### 10b — projects/[slug]/INCIDENT_LOG.md
+Append a new incident entry (use the template at the top of the file as a guide).
+Every field must be filled — no "unknown" left in root cause or resolution.
+
+### 10c — projects/[slug]/ERROR_SIGNATURES.md
+Read the file. If this ticket produced an error message or symptom not already listed, add it.
+Format: symptom → means → check → fix → first seen INC-ID.
+
+### 10d — memory/INCIDENT_PATTERNS.md
+Read the file. Does this root cause match an existing pattern?
+- **Match:** add the project slug and INC-ID to the "Also seen" list.
+- **No match, but could affect other projects:** create a new P-### entry.
+Every ticket either matches a known pattern or teaches a new one. This step is not optional.
 
 ---
 

@@ -219,8 +219,10 @@ create_project() {
 
     # Copy template
     mkdir -p "$project_dir"
-    cp "$TEMPLATE_DIR/RSI.yaml"    "$project_dir/RSI.yaml"
-    cp "$TEMPLATE_DIR/CHANGELOG.md" "$project_dir/CHANGELOG.md"
+    cp "$TEMPLATE_DIR/RSI.yaml"             "$project_dir/RSI.yaml"
+    cp "$TEMPLATE_DIR/CHANGELOG.md"         "$project_dir/CHANGELOG.md"
+    cp "$TEMPLATE_DIR/INCIDENT_LOG.md"      "$project_dir/INCIDENT_LOG.md"
+    cp "$TEMPLATE_DIR/ERROR_SIGNATURES.md"  "$project_dir/ERROR_SIGNATURES.md"
 
     # Write RSI.yaml via Python (handles special chars and escaping cleanly)
     python3 - "$project_dir/RSI.yaml" "$slug" "$name" "$description" \

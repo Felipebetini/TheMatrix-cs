@@ -26,6 +26,7 @@ An open-source template for running a team of AI agents that handle support tick
 
 - [Quick start](#quick-start)
 - [Adapting it to your team](#adapting-it-to-your-team)
+- [It grows with every ticket](#it-grows-with-every-ticket)
 - [Works with any LLM](#works-with-any-llm)
 - [The live dashboard](#the-live-dashboard)
 - [Repository structure](#repository-structure)
@@ -122,6 +123,32 @@ The harness — hooks, gates, scripts, dashboard — works out of the box. Three
 **3. `projects/_template/RSI.yaml`** — Create one directory per client or product. The RSI (Relationship and System Identity) card is what Smith loads to understand the project before reading any ticket. Fill in the critical flows and do-not-touch zones.
 
 See [`SETUP.md`](https://github.com/Felipebetini/TheMatrix-cs/blob/main/SETUP.md) for the full adaptation guide, including multi-language teams, Codex-only setups, and how to write playbooks for your ticket types.
+
+---
+
+## It grows with every ticket
+
+This is the whole point. The repo you cloned is not a static template — it's a living knowledge base that gets smarter every time you close a ticket.
+
+**What Gate E writes after every resolved ticket:**
+
+| File | What accumulates |
+|------|-----------------|
+| `projects/[slug]/CHANGELOG.md` | Every change made to this project, in order |
+| `projects/[slug]/INCIDENT_LOG.md` | Full incident history — root cause, resolution, lessons learned |
+| `projects/[slug]/ERROR_SIGNATURES.md` | Known error patterns — symptom → cause → fix |
+| `memory/INCIDENT_PATTERNS.md` | Cross-project patterns — when the same root cause hits two clients |
+| `tickets/` | One record per closed ticket |
+
+After 10 tickets, the second occurrence of any pattern is diagnosed in minutes. After 50, you have an institutional knowledge base that a new agent can load and immediately know your system's failure modes.
+
+**Your local clone is your instance.** The knowledge lives there, not on GitHub. To back it up and sync across machines: fork the repo privately and push after every session.
+
+```bash
+git add projects/ memory/INCIDENT_PATTERNS.md tickets/
+git commit -m "Gate E — [INC-ID] [project] [short title]"
+git push
+```
 
 ---
 

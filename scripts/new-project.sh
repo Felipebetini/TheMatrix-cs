@@ -220,9 +220,12 @@ with open(rsi_file, 'w') as f:
     f.write(content)
 PYEOF
 
-# Update CHANGELOG project name
-sed -i.bak "s/\[Project Name\]/$NAME/g" "$VAULT/projects/$SLUG/CHANGELOG.md" 2>/dev/null
-rm -f "$VAULT/projects/$SLUG/CHANGELOG.md.bak"
+# Copy all template files and replace [Project Name] placeholder
+for f in CHANGELOG.md INCIDENT_LOG.md ERROR_SIGNATURES.md; do
+    cp "$TEMPLATE_DIR/$f" "$VAULT/projects/$SLUG/$f"
+    sed -i.bak "s/\[Project Name\]/$NAME/g" "$VAULT/projects/$SLUG/$f" 2>/dev/null
+    rm -f "$VAULT/projects/$SLUG/$f.bak"
+done
 
 # ─── Summary ───────────────────────────────────────────────────────────────────
 
@@ -231,8 +234,10 @@ echo ""
 print_ok "Project '$SLUG' created"
 echo ""
 echo "  Files:"
-echo "  projects/$SLUG/RSI.yaml      ← identity card"
-echo "  projects/$SLUG/CHANGELOG.md  ← change log"
+echo "  projects/$SLUG/RSI.yaml           ← identity card (fill in critical_flows)"
+echo "  projects/$SLUG/CHANGELOG.md       ← change log (grows with every ticket)"
+echo "  projects/$SLUG/INCIDENT_LOG.md    ← incident history (grows with every ticket)"
+echo "  projects/$SLUG/ERROR_SIGNATURES.md ← error patterns (grows with every ticket)"
 echo ""
 echo "  Fill in the critical_flows and do_not_touch sections in RSI.yaml"
 echo "  before your first ticket on this project."
