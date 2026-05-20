@@ -75,7 +75,7 @@ chmod +x scripts/*.sh
 ./scripts/activate.sh status               # check which CLIs are installed
 ```
 
-**Dashboard:**
+**Dashboard(beta):**
 
 ```bash
 ./scripts/dashboard.sh          # start + open browser at localhost:2025
