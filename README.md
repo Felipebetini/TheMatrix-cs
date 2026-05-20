@@ -1,14 +1,14 @@
-# The Matrix
+<p align="center">
+  <img src="assets/matrix-rain.svg" alt="The Matrix" width="100%">
+</p>
 
-# This is still a work in progress; use it at your own risk!
-
-> **An AI harness for support teams. Not just prompts — a system with teeth.**
+> ⚠️ **Work in progress — use at your own risk.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Runs on Claude Code](https://img.shields.io/badge/runs%20on-Claude%20Code-blueviolet)](https://claude.ai/code)
 [![Setup](https://img.shields.io/badge/Setup-guide-brightgreen.svg)](https://github.com/Felipebetini/TheMatrix-cs/blob/main/SETUP.md)
 
-The Matrix is an open-source template for running a team of AI agents that handle support tickets — with human approval at every risky step and mandatory knowledge write-back after every resolved ticket. It works for any support team: SaaS, e-commerce, CMS, internal tooling.
+An open-source template for running a team of AI agents that handle support tickets — with human approval at every risky step and mandatory knowledge write-back after every resolved ticket. Works with any LLM CLI: Claude, Codex, or Gemini.
 
 ---
 
