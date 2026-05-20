@@ -19,25 +19,27 @@ FORCE_AI="${2:-}"
 
 export MATRIX_VAULT="$VAULT"
 
-# ─── Pre-flight: detect unconfigured template ──────────────────────────────────
-
-WARN=0
+# ─── Pre-flight: first-run setup ──────────────────────────────────────────────
 
 if grep -q "ZION NOT CONFIGURED" "$VAULT/memory/ZION.md" 2>/dev/null; then
     echo ""
-    echo "  ⚠️  ZION not configured."
-    echo "     Edit memory/ZION.md — replace the 'Who we are' section with your team."
-    WARN=1
-fi
-
-if [ -n "$PROJECT" ] && grep -q "project-slug\|replace with" "$VAULT/projects/$PROJECT/RSI.yaml" 2>/dev/null; then
+    echo "  Looks like this is your first time running The Matrix."
+    echo "  Let's set it up for your team before we start."
     echo ""
-    echo "  ⚠️  RSI.yaml for '$PROJECT' has unfilled placeholders."
-    echo "     Edit projects/$PROJECT/RSI.yaml before running a real ticket."
-    WARN=1
+    read -r -p "  Run setup now? [Y/n] " run_setup
+    if [[ ! "$run_setup" =~ ^[Nn]$ ]]; then
+        bash "$VAULT/scripts/setup.sh"
+        echo ""
+        read -r -p "  Setup done. Launch Matrix now? [Y/n] " launch_now
+        [[ "$launch_now" =~ ^[Nn]$ ]] && exit 0
+    fi
 fi
 
-if [ "$WARN" = "1" ]; then
+# Warn about unfilled project placeholders (but don't block)
+if [ -n "$PROJECT" ] && grep -q "project-slug\|/path/to/project" "$VAULT/projects/$PROJECT/RSI.yaml" 2>/dev/null; then
+    echo ""
+    echo "  ⚠️  projects/$PROJECT/RSI.yaml has unfilled placeholders."
+    echo "     Run ./scripts/new-project.sh $PROJECT to fill them in, or edit manually."
     echo ""
     read -r -p "  Continue anyway? [y/N] " confirm
     [[ "$confirm" =~ ^[Yy]$ ]] || exit 0
