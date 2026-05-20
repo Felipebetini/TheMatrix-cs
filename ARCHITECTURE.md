@@ -181,13 +181,7 @@ The Ralph Loop ensures Gate E runs. Gate E ensures write-back completes before t
 <details>
 <summary><strong>6. Multi-model routing</strong></summary>
 
-Different agents run on different models because different tasks have fundamentally different requirements:
-
-| Model | Strength | Agents |
-|-------|---------|--------|
-| **Claude** | Long-horizon reasoning, file write-back, interactive judgment | Smith, Senior, Cypher, Seraph, Trinity, Commander |
-| **Codex** | Fast execution, clean diffs, pre-loaded context | Junior, Midlevel |
-| **Gemini** | Very large context, 50+ files without degrading | Oracle |
+The default routing assigns Claude to orchestration and verification agents, Codex to fast worker agents, and Gemini to Oracle for large-context research. These are defaults, not capability boundaries — any agent runs on any installed model.
 
 `activate.sh` routes automatically: primary model per agent type, automatic fallback if unavailable, clipboard fallback if no CLI is installed.
 

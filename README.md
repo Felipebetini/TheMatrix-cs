@@ -116,7 +116,8 @@ rm /tmp/matrix-ticket.flag
 
 ---
 
-## Versioning
+<details>
+<summary><strong>Versioning</strong></summary>
 
 This repo uses Semantic Versioning.
 
@@ -134,6 +135,8 @@ Examples:
 
 `--tag` also commits `VERSION` + `CHANGELOG.md` and creates `vX.Y.Z` tag.
 
+</details>
+
 ---
 
 ## Adapting it to your team
@@ -150,7 +153,8 @@ See [`SETUP.md`](https://github.com/Felipebetini/TheMatrix-cs/blob/main/SETUP.md
 
 ---
 
-## It grows with every ticket
+<details>
+<summary><strong>It grows with every ticket</strong></summary>
 
 This is the whole point. The repo you cloned is not a static template. It's a living knowledge base that gets smarter every time you close a ticket.
 
@@ -174,23 +178,20 @@ git commit -m "Gate E: [INC-ID] [project] [short title]"
 git push
 ```
 
+</details>
+
 ---
 
-## Works with any LLM
+<details>
+<summary><strong>Works with any LLM</strong></summary>
 
 The Matrix is model-agnostic. The agents are markdown files. The harness is shell scripts and Python. Nothing is hardwired to a specific provider.
 
-**You only need one CLI to get started.** Claude-only, Codex-only, or Gemini-only setups are supported. Routing and fallbacks adapt to what is installed, so the workflow still runs even when a preferred model is unavailable. Capabilities differ by CLI (especially write tools), but Matrix itself is not locked to one provider.
+**You only need one CLI to get started.** Claude-only, Codex-only, or Gemini-only setups are supported. Routing and fallbacks adapt to what is installed, so the workflow still runs even when a preferred model is unavailable.
 
-**When you have multiple CLIs, each agent uses the one it's best suited for:**
+**If you have multiple CLIs, the default routing is:** Claude for orchestration and verification agents, Codex for fast worker agents, Gemini for Oracle. These are defaults, not capability boundaries — any agent runs on any installed model.
 
-| Model | Why | Default for |
-|-------|-----|-------------|
-| **Claude Code** | Long-horizon reasoning, file write-back, interactive judgment | Smith, Senior, Cypher, Seraph, Trinity, Commander |
-| **Codex** | Fast execution, clean diffs, pre-loaded context | Junior, Midlevel |
-| **Gemini** | Very large context window, reads 50+ files without degrading | Oracle |
-
-**You can override any agent's model:**
+**Override any agent's model at any time:**
 ```bash
 ./scripts/matrix.sh my-project codex     # run everything on Codex today
 ./scripts/matrix.sh my-project gemini    # use Gemini (Oracle research only)
@@ -200,6 +201,8 @@ The Matrix is model-agnostic. The agents are markdown files. The harness is shel
 **The vault is the launchpad. Your project directory is the workshop.**
 
 The Matrix repo holds the agents, policies, and memory. Your actual project files live wherever they already live on your machine, configured in `projects/[slug]/RSI.yaml` under `working_directory`. The AI reads from both. It reasons and writes back to the vault; it implements and edits files in your working directory.
+
+</details>
 
 ---
 
@@ -316,7 +319,8 @@ the-matrix/
 
 ---
 
-## Design principles
+<details>
+<summary><strong>Design principles</strong></summary>
 
 **The harness makes it reliable, not the model.** Every hard constraint is enforced by something outside the model's control: a Stop hook, a flag file, a keyword scan. Prompts guide; the harness enforces.
 
@@ -330,9 +334,12 @@ the-matrix/
 
 **The operator is the last gate.** "Approved" must appear explicitly. Not assumed, not implied, not inferred. The word must appear, in this session, from the operator.
 
+</details>
+
 ---
 
-## References
+<details>
+<summary><strong>References</strong></summary>
 
 The Matrix builds directly on ideas from the following sources. Read them to understand the *why* behind every design decision.
 
@@ -397,6 +404,8 @@ CLI commands used for vault integration: `search:context`, `append`, `create`, `
 | Multi-model routing | LangChain [4] + Trivedy routing model |
 | Codex skills system | OpenAI Codex docs [5] |
 | Obsidian vault integration | Obsidian CLI [6] |
+
+</details>
 
 </details>
 
