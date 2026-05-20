@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Runs on Claude Code](https://img.shields.io/badge/runs%20on-Claude%20Code-blueviolet)](https://claude.ai/code)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](SETUP.md)
+[![Setup](https://img.shields.io/badge/Setup-guide-brightgreen.svg)](https://github.com/Felipebetini/TheMatrix-cs/blob/main/SETUP.md)
 
 The Matrix is an open-source template for running a team of AI agents that handle support tickets — with human approval at every risky step and mandatory knowledge write-back after every resolved ticket. It works for any support team: SaaS, e-commerce, CMS, internal tooling.
 
@@ -24,28 +24,95 @@ The Matrix is an open-source template for running a team of AI agents that handl
 
 ## Table of contents
 
-- [The problem](#the-problem)
-- [Agent = Model + Harness](#agent--model--harness)
-- [The 5 harness components](#the-5-harness-components)
-- [Context rot: why sessions degrade](#context-rot-why-sessions-degrade)
-- [The mechanisms](#the-mechanisms)
-  - [1. ZION — the always-loaded constitution](#1-zion--the-always-loaded-constitution)
-  - [2. The Ralph Loop — blocked exit](#2-the-ralph-loop--blocked-exit)
-  - [3. Self-Verify — observe, don't assume](#3-self-verify--observe-dont-assume)
-  - [4. Doom loop detection](#4-doom-loop-detection)
-  - [5. Gate E — mandatory write-back](#5-gate-e--mandatory-write-back)
-  - [6. Multi-model routing](#6-multi-model-routing)
-- [Sentinels — deterministic safety](#sentinels--deterministic-safety)
-- [VERITAS — evidence-first protocol](#veritas--evidence-first-protocol)
-- [The 11 agents](#the-11-agents)
-- [The two-speed workflow](#the-two-speed-workflow)
-- [Why these names](#why-these-names)
-- [The live dashboard](#the-live-dashboard)
 - [Quick start](#quick-start)
 - [Adapting it to your team](#adapting-it-to-your-team)
+- [The live dashboard](#the-live-dashboard)
 - [Repository structure](#repository-structure)
+- [How it works](#the-problem)
+  - [The problem](#the-problem)
+  - [Agent = Model + Harness](#agent--model--harness)
+  - [The 5 harness components](#the-5-harness-components)
+  - [Context rot: why sessions degrade](#context-rot-why-sessions-degrade)
+  - [The mechanisms](#the-mechanisms)
+  - [Sentinels — deterministic safety](#sentinels--deterministic-safety)
+  - [VERITAS — evidence-first protocol](#veritas--evidence-first-protocol)
+  - [The 11 agents](#the-11-agents)
+  - [The two-speed workflow](#the-two-speed-workflow)
+  - [Why these names](#why-these-names)
 - [Design principles](#design-principles)
 - [References](#references)
+
+---
+
+## Quick start
+
+**Minimum requirement:** Claude Code CLI
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+Optional (for multi-model routing):
+```bash
+npm install -g @openai/codex          # Junior, Midlevel workers
+npm install -g @google/gemini-cli     # Oracle research agent
+```
+
+**Install and run:**
+
+```bash
+git clone https://github.com/Felipebetini/TheMatrix-cs.git
+cd TheMatrix-cs
+chmod +x scripts/*.sh
+./scripts/matrix.sh
+```
+
+**What you'll see:**
+
+```
+  ▶  Matrix starting
+
+  Which AI?
+  [1] Claude  — full file tools, write-back, interactive  (default)
+  [2] Codex   — pre-loaded context, produces diffs
+  [3] Gemini  — large context dumps (Oracle only)
+
+  >
+
+▶  Matrix: smith → claude  |  project: none  |  context: 142 lines
+
+Matrix online. Which project are we working on today?
+```
+
+**Verify the Ralph Loop is wired:**
+
+```bash
+touch /tmp/matrix-ticket.flag
+# open a Claude Code session and try to exit → should be blocked
+rm /tmp/matrix-ticket.flag
+```
+
+**Check which AI CLIs are available:**
+
+```bash
+./scripts/activate.sh status
+```
+
+> **Before your first real ticket:** the launcher will detect unconfigured state and walk you through setup automatically. Or run `./scripts/setup.sh` directly. See `SETUP.md` for the full guide.
+
+---
+
+## Adapting it to your team
+
+The harness — hooks, gates, scripts, dashboard — works out of the box. Three files need your context before you start:
+
+**1. `memory/ZION.md`** — Replace the "Who we are" section with your team and domain. Keep the non-negotiables, or rewrite them for your context. Keep the file under 400 tokens.
+
+**2. `policies/RISK_POLICY.md`** — Replace the examples and automatic high-risk flags with the operations that are genuinely dangerous in your system. The three-tier structure is reusable as-is.
+
+**3. `projects/_template/RSI.yaml`** — Create one directory per client or product. The RSI (Relationship and System Identity) card is what Smith loads to understand the project before reading any ticket. Fill in the critical flows and do-not-touch zones.
+
+See [`SETUP.md`](https://github.com/Felipebetini/TheMatrix-cs/blob/main/SETUP.md) for the full adaptation guide, including multi-language teams, Codex-only setups, and how to write playbooks for your ticket types.
 
 ---
 
@@ -375,78 +442,6 @@ Shows in real time:
 - Live event log with timestamps
 
 The PreToolUse hook (`scripts/track-tool.py`) writes every tool call to `/tmp/matrix-state.json` and `/tmp/matrix-events.jsonl`. The dashboard polls those files every second. Python stdlib only — no pip installs. The Matrix rain animation is canvas-based with no libraries.
-
----
-
-## Quick start
-
-**Minimum requirement:** Claude Code CLI
-
-```bash
-npm install -g @anthropic-ai/claude-code
-```
-
-Optional (for multi-model routing):
-```bash
-npm install -g @openai/codex          # Junior, Midlevel workers
-npm install -g @google/gemini-cli     # Oracle research agent
-```
-
-**Install and run:**
-
-```bash
-git clone https://github.com/your-org/the-matrix.git
-cd the-matrix
-chmod +x scripts/*.sh
-./scripts/matrix.sh
-```
-
-**What you'll see:**
-
-```
-  ▶  Matrix starting
-
-  Which AI?
-  [1] Claude  — full file tools, write-back, interactive  (default)
-  [2] Codex   — pre-loaded context, produces diffs
-  [3] Gemini  — large context dumps (Oracle only)
-
-  >
-
-▶  Matrix: smith → claude  |  project: none  |  context: 142 lines
-
-Matrix online. Which project are we working on today?
-```
-
-**Verify the Ralph Loop is wired:**
-
-```bash
-touch /tmp/matrix-ticket.flag
-# open a Claude Code session and try to exit → should be blocked
-rm /tmp/matrix-ticket.flag
-```
-
-**Check which AI CLIs are available:**
-
-```bash
-./scripts/activate.sh status
-```
-
-> **Before your first real ticket:** edit `memory/ZION.md` (the "Who we are" section) and create a project folder from `projects/_template/`. The launcher will warn you if you haven't. See `SETUP.md` for the full guide.
-
----
-
-## Adapting it to your team
-
-The harness — hooks, gates, scripts, dashboard — works out of the box. Three files need your context before you start:
-
-**1. `memory/ZION.md`** — Replace the "Who we are" section with your team and domain. Keep the non-negotiables, or rewrite them for your context. Keep the file under 400 tokens.
-
-**2. `policies/RISK_POLICY.md`** — Replace the examples and automatic high-risk flags with the operations that are genuinely dangerous in your system. The three-tier structure is reusable as-is.
-
-**3. `projects/_template/RSI.yaml`** — Create one directory per client or product. The RSI (Relationship and System Identity) card is what Smith loads to understand the project before reading any ticket. Fill in the critical flows and do-not-touch zones.
-
-See `SETUP.md` for the full adaptation guide, including multi-language teams, Codex-only setups, and how to write playbooks for your ticket types.
 
 ---
 
