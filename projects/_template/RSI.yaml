@@ -1,0 +1,47 @@
+# RSI — Relationship and System Identity
+# One file per project. Loaded by Smith at the start of every session.
+# Keep it short — this is always loaded, not on demand.
+
+slug: project-slug
+name: "Project Display Name"
+description: "One sentence about what this project is and who it's for."
+
+# The operator handling this project
+operator: "Your name"
+
+# Client communication language (ISO 639-1 code)
+# Used by Trinity for reply drafts
+client_language: en
+
+# Critical flows — things that earn money or define the product
+# If a ticket touches any of these, risk level is automatically high
+critical_flows:
+  - "[e.g. User registration and login]"
+  - "[e.g. Payment and checkout]"
+  - "[e.g. Core data processing pipeline]"
+
+# Do not touch without explicit operator approval
+# Even if the ticket seems to require it — escalate and confirm first
+do_not_touch:
+  - "[e.g. Production database — always create a backup first]"
+  - "[e.g. Authentication middleware — any change here is high risk]"
+
+# Where the working files live on this machine
+# Workers make changes here, not in the vault
+working_directory: "/path/to/project/files"
+
+# Deployment method
+# Options: git, sftp, ci-cd, manual, unknown
+deployment: git
+
+# Staging URL (if available)
+staging_url: ""
+
+# Production URL
+production_url: ""
+
+# Notes for agents
+# Anything that would surprise an agent reading this for the first time
+notes:
+  - "[e.g. The staging environment is not always in sync with production]"
+  - "[e.g. Email delivery is handled by a third-party service — check that dashboard too]"

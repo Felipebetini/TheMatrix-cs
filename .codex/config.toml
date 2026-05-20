@@ -1,0 +1,19 @@
+# Codex CLI configuration for The Matrix
+#
+# This file is read by the Codex CLI. Adjust to match your setup.
+
+# Model to use for Codex agents
+# model = "o4-mini"  # Fast, good for Junior/Midlevel implementation
+# model = "o3"       # Stronger reasoning, use for complex Midlevel work
+
+# Context window setting
+# Codex agents receive pre-built context via activate.sh --system flag
+# Do not load additional context files here — activate.sh manages this
+
+# Approval mode
+# "suggest" — propose changes, operator approves
+# "auto-edit" — apply changes directly (set for trusted worker agents)
+approval-mode = "suggest"
+
+# Working directory (set per invocation by activate.sh)
+# cwd = "."
