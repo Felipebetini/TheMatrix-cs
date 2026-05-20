@@ -1,5 +1,7 @@
 # The Matrix
 
+# This still a work in progress, the usage is on your own risk!
+
 > **An AI harness for support teams. Not just prompts — a system with teeth.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
