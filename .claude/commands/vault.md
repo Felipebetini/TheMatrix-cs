@@ -2,6 +2,10 @@
 
 Use this skill to interact with the Obsidian vault via the Obsidian URI scheme or Obsidian CLI.
 
+> **Obsidian must be running** for URI-based operations (`/vault ticket`, `/vault open`).
+> If Obsidian is closed, all operations fall back to direct file writes automatically —
+> vault links (`[[filename]]`) won't be maintained, but the files will be created correctly.
+
 ## Commands
 
 ### /vault ticket [INC-ID] [slug] [title]

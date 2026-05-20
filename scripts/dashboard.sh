@@ -1,14 +1,33 @@
 #!/usr/bin/env bash
 # Matrix Dashboard Launcher
 #
-# Starts the dashboard server and opens the browser.
+# Usage:
+#   ./scripts/dashboard.sh          ← start + open browser
+#   ./scripts/dashboard.sh stop     ← kill the server
+#
 # Dashboard polls /tmp/matrix-state.json and /tmp/matrix-events.jsonl.
+# Keep it open on a second screen while the agent works in your terminal.
 
 VAULT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PORT=2025
 
+# ─── Stop ──────────────────────────────────────────────────────────────────────
+
+if [ "${1:-}" = "stop" ]; then
+    PID=$(lsof -ti :"$PORT" 2>/dev/null)
+    if [ -n "$PID" ]; then
+        kill "$PID" 2>/dev/null
+        echo "  Dashboard stopped."
+    else
+        echo "  Dashboard is not running on port $PORT."
+    fi
+    exit 0
+fi
+
+# ─── Start ─────────────────────────────────────────────────────────────────────
+
 # Check if already running
-if lsof -i :$PORT &>/dev/null 2>&1; then
+if lsof -i :"$PORT" &>/dev/null 2>&1; then
     echo "  Dashboard already running → http://localhost:$PORT"
     open "http://localhost:$PORT" 2>/dev/null || true
     exit 0

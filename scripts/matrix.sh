@@ -4,9 +4,12 @@
 # ╚══════════════════════════════════════════════════════════════╝
 #
 # Usage:
-#   ./scripts/matrix.sh                    ← Smith asks which project
-#   ./scripts/matrix.sh my-project         ← pre-load project context
-#   ./scripts/matrix.sh my-project codex   ← force Codex (Claude rate-limited)
+#   ./scripts/matrix.sh                       ← Smith asks project + LLM
+#   ./scripts/matrix.sh my-project            ← pre-load project, asks which LLM
+#   ./scripts/matrix.sh my-project claude     ← force Claude
+#   ./scripts/matrix.sh my-project codex      ← force Codex
+#   ./scripts/matrix.sh my-project gemini     ← force Gemini (Oracle only)
+#   ./scripts/activate.sh status              ← check which CLIs are installed
 #
 # Pipeline flow:
 #   Smith orchestrates everything internally using sub-agents.

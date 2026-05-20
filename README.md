@@ -26,6 +26,7 @@ The Matrix is an open-source template for running a team of AI agents that handl
 
 - [Quick start](#quick-start)
 - [Adapting it to your team](#adapting-it-to-your-team)
+- [Works with any LLM](#works-with-any-llm)
 - [The live dashboard](#the-live-dashboard)
 - [Repository structure](#repository-structure)
 - [How it works](#the-problem)
@@ -46,19 +47,15 @@ The Matrix is an open-source template for running a team of AI agents that handl
 
 ## Quick start
 
-**Minimum requirement:** Claude Code CLI
+Install at least one AI CLI — any combination works:
 
 ```bash
-npm install -g @anthropic-ai/claude-code
+npm install -g @anthropic-ai/claude-code   # Claude (recommended for Smith/Senior/Seraph)
+npm install -g @openai/codex               # Codex (fast execution — Junior, Midlevel)
+npm install -g @google/gemini-cli          # Gemini (large context — Oracle)
 ```
 
-Optional (for multi-model routing):
-```bash
-npm install -g @openai/codex          # Junior, Midlevel workers
-npm install -g @google/gemini-cli     # Oracle research agent
-```
-
-**Install and run:**
+**Clone and run:**
 
 ```bash
 git clone https://github.com/Felipebetini/TheMatrix-cs.git
@@ -67,11 +64,29 @@ chmod +x scripts/*.sh
 ./scripts/matrix.sh
 ```
 
-**What you'll see:**
+**Usage patterns:**
+
+```bash
+./scripts/matrix.sh                        # asks which project, then which LLM
+./scripts/matrix.sh my-project             # pre-loads project, asks which LLM
+./scripts/matrix.sh my-project claude      # force Claude
+./scripts/matrix.sh my-project codex       # force Codex
+./scripts/matrix.sh my-project gemini      # force Gemini (Oracle only)
+./scripts/activate.sh status               # check which CLIs are installed
+```
+
+**Dashboard:**
+
+```bash
+./scripts/dashboard.sh          # start + open browser at localhost:2025
+./scripts/dashboard.sh stop     # kill the server
+```
+
+Keep the dashboard open on a second screen while the agent works in your terminal.
+
+**What the LLM selection looks like:**
 
 ```
-  ▶  Matrix starting
-
   Which AI?
   [1] Claude  — full file tools, write-back, interactive  (default)
   [2] Codex   — pre-loaded context, produces diffs
@@ -79,26 +94,20 @@ chmod +x scripts/*.sh
 
   >
 
-▶  Matrix: smith → claude  |  project: none  |  context: 142 lines
+▶  Matrix: smith → claude  |  project: my-project  |  context: 142 lines
 
 Matrix online. Which project are we working on today?
 ```
 
-**Verify the Ralph Loop is wired:**
+**Verify the Ralph Loop works:**
 
 ```bash
 touch /tmp/matrix-ticket.flag
-# open a Claude Code session and try to exit → should be blocked
+# open a Claude Code session and try to exit — it should be blocked
 rm /tmp/matrix-ticket.flag
 ```
 
-**Check which AI CLIs are available:**
-
-```bash
-./scripts/activate.sh status
-```
-
-> **Before your first real ticket:** the launcher will detect unconfigured state and walk you through setup automatically. Or run `./scripts/setup.sh` directly. See `SETUP.md` for the full guide.
+> **First run:** the launcher detects unconfigured state and walks you through setup automatically. Or run `./scripts/setup.sh` directly. See `SETUP.md` for the full guide.
 
 ---
 
@@ -113,6 +122,33 @@ The harness — hooks, gates, scripts, dashboard — works out of the box. Three
 **3. `projects/_template/RSI.yaml`** — Create one directory per client or product. The RSI (Relationship and System Identity) card is what Smith loads to understand the project before reading any ticket. Fill in the critical flows and do-not-touch zones.
 
 See [`SETUP.md`](https://github.com/Felipebetini/TheMatrix-cs/blob/main/SETUP.md) for the full adaptation guide, including multi-language teams, Codex-only setups, and how to write playbooks for your ticket types.
+
+---
+
+## Works with any LLM
+
+The Matrix is model-agnostic. The agents are markdown files. The harness is shell scripts and Python. Nothing is hardwired to a specific provider.
+
+**You only need one CLI to get started.** If you only have Claude, everything runs on Claude. If you only have Codex, the routing falls back and everything still works. The system degrades gracefully — it never blocks because a specific model isn't available.
+
+**When you have multiple CLIs, each agent uses the one it's best suited for:**
+
+| Model | Why | Default for |
+|-------|-----|-------------|
+| **Claude Code** | Long-horizon reasoning, file write-back, interactive judgment | Smith, Senior, Cypher, Seraph, Trinity, Commander |
+| **Codex** | Fast execution, clean diffs, pre-loaded context | Junior, Midlevel |
+| **Gemini** | Very large context window — reads 50+ files without degrading | Oracle |
+
+**You can override any agent's model:**
+```bash
+./scripts/matrix.sh my-project codex     # run everything on Codex today
+./scripts/matrix.sh my-project gemini    # use Gemini (Oracle research only)
+./scripts/activate.sh oracle my-project  # launch Oracle directly on Gemini
+```
+
+**The vault is the launchpad. Your project directory is the workshop.**
+
+The Matrix repo holds the agents, policies, and memory. Your actual project files live wherever they already live on your machine — configured in `projects/[slug]/RSI.yaml` under `working_directory`. The AI reads from both. It reasons and writes back to the vault; it implements and edits files in your working directory.
 
 ---
 
