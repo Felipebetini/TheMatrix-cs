@@ -70,9 +70,9 @@ Examples:
 Install at least one AI CLI (any combination works):
 
 ```bash
-npm install -g @anthropic-ai/claude-code   # Claude (recommended for Smith/Senior/Seraph)
-npm install -g @openai/codex               # Codex (fast execution, Junior and Midlevel)
-npm install -g @google/gemini-cli          # Gemini (large context, Oracle only)
+npm install -g @anthropic-ai/claude-code   # Claude CLI (full tool support)
+npm install -g @openai/codex               # Codex CLI (fast execution, strong coding workflow)
+npm install -g @google/gemini-cli          # Gemini CLI (large-context research; fewer write capabilities)
 ```
 
 **Clone and run:**
@@ -91,7 +91,7 @@ chmod +x scripts/*.sh
 ./scripts/matrix.sh my-project             # pre-loads project, asks which LLM
 ./scripts/matrix.sh my-project claude      # force Claude
 ./scripts/matrix.sh my-project codex       # force Codex
-./scripts/matrix.sh my-project gemini      # force Gemini (Oracle only)
+./scripts/matrix.sh my-project gemini      # force Gemini
 ./scripts/activate.sh status               # check which CLIs are installed
 ```
 
@@ -121,7 +121,7 @@ The dashboard supports per-session monitoring via a session selector in the head
   Which AI?
   [1] Claude  -- full file tools, write-back, interactive  (default)
   [2] Codex   -- pre-loaded context, produces diffs
-  [3] Gemini  -- large context dumps (Oracle only)
+  [3] Gemini  -- large context, research-heavy (limited write tools)
 
   >
 
@@ -186,7 +186,7 @@ git push
 
 The Matrix is model-agnostic. The agents are markdown files. The harness is shell scripts and Python. Nothing is hardwired to a specific provider.
 
-**You only need one CLI to get started.** If you only have Claude, everything runs on Claude. If you only have Codex, the routing falls back and everything still works. The system degrades gracefully and never blocks because a specific model isn't available.
+**You only need one CLI to get started.** Claude-only, Codex-only, or Gemini-only setups are supported. Routing and fallbacks adapt to what is installed, so the workflow still runs even when a preferred model is unavailable. Capabilities differ by CLI (especially write tools), but Matrix itself is not locked to one provider.
 
 **When you have multiple CLIs, each agent uses the one it's best suited for:**
 
