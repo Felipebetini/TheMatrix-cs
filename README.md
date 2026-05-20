@@ -1,6 +1,6 @@
 # The Matrix
 
-# This still a work in progress, the usage is on your own risk!
+# This is still a work in progress; use it at your own risk!
 
 > **An AI harness for support teams. Not just prompts — a system with teeth.**
 
