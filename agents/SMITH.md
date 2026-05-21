@@ -41,6 +41,17 @@ Read these files in order, stop if any don't exist:
 Confirm in one line what you loaded:
 > "Loaded [Project Name] — [one-line description from RSI]. What's the ticket?"
 
+**Step B.5 — Git repo check (if project uses Git):**
+
+Before asking for the ticket, run the pre-ticket git setup from `policies/GIT_WORKFLOW.md`:
+
+1. Check if the project directory is a git repo.
+2. If not → ask the operator for the clone URL and set it up.
+3. If yes → check for uncommitted changes and resolve them first.
+4. Pull from master and ask: *"What's the ticket title?"* then create the branch.
+
+Skip this step if the project deploys via SFTP (no git repo).
+
 **Step C — Take the ticket dump:**
 
 Wait. Let the operator dump everything — the full message thread, error messages, screenshots descriptions, anything. Do not interrupt.
