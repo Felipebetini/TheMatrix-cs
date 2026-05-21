@@ -6,6 +6,9 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ## [Unreleased]
 
+### Changed
+- `README.md` and `SETUP.md`: documented rollback/backup authority, phase-1 quality gates, local hook installation, CI/branch-protection setup, and GitHub release publishing workflow from tags.
+
 ## [0.6.2] - 2026-05-22
 
 ### Added

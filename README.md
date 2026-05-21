@@ -79,6 +79,16 @@ chmod +x scripts/*.sh
 
 Keep the dashboard open on a second screen while the agent works in your terminal.
 
+**Install local quality gates (recommended):**
+
+```bash
+./scripts/install-git-hooks.sh
+```
+
+This installs a `pre-commit` hook that runs:
+- `scripts/pr-check.sh`
+- `scripts/health-check.sh --quick`
+
 
 For live token telemetry:
 
@@ -138,7 +148,40 @@ Examples:
 
 `--tag` also commits `VERSION` + `CHANGELOG.md` and creates `vX.Y.Z` tag.
 
+**GitHub Releases**
+
+After pushing the version tag, publish a GitHub Release from that tag:
+1. Open **Releases** in GitHub
+2. Choose existing tag `vX.Y.Z`
+3. Use the matching section from `CHANGELOG.md` as release notes
+4. Publish
+
+Historical releases can be created retroactively for older tags.
+
 </details>
+
+---
+
+## Quality and safety gates
+
+Phase-1 gates are enabled in this repo:
+
+- **Local pre-commit gate** (installed by `scripts/install-git-hooks.sh`)
+- **CI gate**: `.github/workflows/quality-gate.yml` on PRs and pushes to `main`
+  - `health-check.sh --quick`
+  - `pr-check.sh --dir .`
+  - Gitleaks secret scan
+
+For merge protection, set GitHub branch protection on `main` and require the `quality-gate` status check.
+
+---
+
+## Rollback authority
+
+- Rollback execution is **operator-only**.
+- Agents do not execute rollback actions.
+- Backup requests are risk-based (not automatic on every ticket).
+- On high-load sites, backup creation must be explicitly approved by the operator.
 
 ---
 

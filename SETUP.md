@@ -170,7 +170,31 @@ If hooks were just installed, restart Codex sessions so the hooks are loaded.
 
 ---
 
-## Step 8 — Launch
+## Step 8 — Install local quality gates (recommended)
+
+```bash
+./scripts/install-git-hooks.sh
+```
+
+This installs `.git/hooks/pre-commit` and runs on every commit:
+- `scripts/pr-check.sh`
+- `scripts/health-check.sh --quick`
+
+---
+
+## Step 9 — Enable CI quality gate + branch protection (recommended)
+
+This repo ships with `.github/workflows/quality-gate.yml` (PR + push checks).
+
+In GitHub:
+1. Go to **Settings → Branches → Branch protection rules**
+2. Add/Update rule for `main`
+3. Require status checks to pass before merging
+4. Select `quality-gate`
+
+---
+
+## Step 10 — Launch
 
 ```bash
 ./scripts/matrix.sh
