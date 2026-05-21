@@ -32,6 +32,9 @@ echo ""
 # Ensure dashboard is running before the session starts
 "$VAULT/scripts/dashboard.sh" ensure
 
+# Ensure PHP code quality tools are installed (silent — runs once, skips if already present)
+"$VAULT/scripts/setup-phpcs.sh" --auto
+
 "$VAULT/scripts/activate.sh" smith "$PROJECT" "$FORCE_AI"
 
 SELECTED_AI=""
@@ -46,7 +49,7 @@ if [ -f "/tmp/matrix-ticket.flag" ]; then
     echo "  ⚠️  Session ended with an active ticket."
     echo "     Gate E close protocol was not completed."
     echo "     Run matrix.sh again to re-enter Smith and finish, or:"
-    echo "     rm /tmp/matrix-ticket.flag  (only if Felipe dismissed the ticket)"
+    echo "     rm /tmp/matrix-ticket.flag  (only if the operator dismissed the ticket)"
     echo ""
     if [ "$SELECTED_AI" = "codex" ] || [ "$FORCE_AI" = "codex" ]; then
         echo "  ❌ Codex session blocked from clean exit while Gate E is still pending."

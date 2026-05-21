@@ -6,8 +6,20 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-05-22
+
+### Added
+- `scripts/commit-guard.sh`: PreToolUse Bash hook — intercepts `git commit`, runs `pr-check.sh` on staged PHP/JS/CSS files. When blocked, writes `/tmp/matrix-pr-issues.md` with structured issues (file + line) for the agent fix loop. Doom loop detection after 3 failed attempts → escalate to Smith.
+- `scripts/git-guard.sh`: PreToolUse Bash hook — blocks `git push` to `main`/`master`/`develop` and any `git push --force` at the harness level. Hard enforcement, not prompt-based.
+- `scripts/gate-e-verify.sh`: verifies Gate E completion before the ticket flag can be removed — checks ticket file created, project CHANGELOG updated, session saved to DB. Called by `gate-check.sh` on every blocked exit.
+- `scripts/setup-phpcs.sh`: installs PHP_CodeSniffer, WordPress Coding Standards, phpmd, and phpcpd via Composer global. `--auto` flag exits silently if already installed. `matrix.sh` calls this on every launch for zero-manual-setup.
+
 ### Changed
-- `README.md` and `SETUP.md`: documented rollback/backup authority, phase-1 quality gates, local hook installation, CI/branch-protection setup, and GitHub release publishing workflow from tags.
+- `scripts/pr-check.sh`: added PHPCS (WordPress Coding Standards) per-file check, phpmd (cyclomatic complexity + unused code) per-file check, and phpcpd (copy/paste detection) batch run across all staged PHP files.
+- `scripts/matrix.sh`: calls `setup-phpcs.sh --auto` on every launch — PHP quality tools auto-install on first run.
+- `.github/workflows/quality-gate.yml`: `php-quality` job now installs phpmd + phpcpd and runs them on changed PHP files in CI.
+- `agents/SMITH.md`: compressed brief now requires `FIXED_WHEN` and `VERIFY_CMD` fields. Step 3a adds independent FIXED_WHEN verification (agent must run VERIFY_CMD and paste real output). Step 3b documents the commit guard fix loop and doom loop escalation path.
+- `AGENTS.md`: commit guard fix loop documented — agents know to read `/tmp/matrix-pr-issues.md`, fix by line number, and respect the 3-attempt doom loop limit.
 
 ## [0.6.2] - 2026-05-22
 
