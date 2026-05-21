@@ -97,11 +97,21 @@ deployment: git  # or: sftp, ci-cd, manual
 
 ## Step 5 — Wire up the Claude Code hooks
 
-`.claude/settings.json` contains two hooks:
+`.claude/settings.json` contains four hooks:
 1. **Stop hook** (`gate-check.sh`) — blocks exit if a ticket flag is active (the Ralph Loop)
 2. **PreToolUse hook** (`track-tool.py`) — writes every tool call to the dashboard state
+3. **PreToolUse hook** (`git-guard.sh`) — hard-blocks push to protected branches and force-push
+4. **PreToolUse hook** (`commit-guard.sh`) — runs `pr-check.sh` on staged files before every commit; writes `/tmp/matrix-pr-issues.md` on block for the agent fix loop
 
 These are already configured. Make sure Claude Code reads them by running `claude` from the project root (where `.claude/settings.json` lives).
+
+**PHP quality tools** install automatically on first `matrix.sh` launch. To install manually:
+
+```bash
+./scripts/setup-phpcs.sh
+```
+
+This installs PHPCS, WordPress Coding Standards, phpmd, and phpcpd globally via Composer.
 
 ---
 

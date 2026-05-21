@@ -79,6 +79,10 @@ chmod +x scripts/*.sh
 
 Keep the dashboard open on a second screen while the agent works in your terminal.
 
+**PHP quality tools — auto-installed on first launch:**
+
+`matrix.sh` calls `setup-phpcs.sh --auto` on every launch. First run installs PHPCS, WordPress Coding Standards, phpmd, and phpcpd via Composer. Subsequent launches are instant.
+
 **Install local quality gates (recommended):**
 
 ```bash
@@ -164,13 +168,27 @@ Historical releases can be created retroactively for older tags.
 
 ## Quality and safety gates
 
-Phase-1 gates are enabled in this repo:
+Two layers — local (every commit) and CI (every PR/push to `main`).
 
-- **Local pre-commit gate** (installed by `scripts/install-git-hooks.sh`)
-- **CI gate**: `.github/workflows/quality-gate.yml` on PRs and pushes to `main`
-  - `health-check.sh --quick`
-  - `pr-check.sh --dir .`
-  - Gitleaks secret scan
+**Local — automatic on every `git commit`:**
+
+`commit-guard.sh` (PreToolUse hook) intercepts every commit and runs `pr-check.sh` on staged PHP/JS/CSS files. Blocking issues write `/tmp/matrix-pr-issues.md` — agents read it, fix the listed lines, and retry. After 3 failed attempts: doom loop → escalate to Smith.
+
+`git-guard.sh` (PreToolUse hook) hard-blocks any push to `main`/`master`/`develop` and any force-push.
+
+**`pr-check.sh` checks:**
+- PHP syntax, debug code, hardcoded credentials, WordPress escaping/sanitisation
+- PHPCS WordPress Coding Standards (errors block, warnings warn)
+- phpmd: cyclomatic complexity + coupling block; unused variables warn
+- phpcpd: duplicate blocks ≥6 lines warn
+- JS: `console.log`, `debugger;`
+- All files: merge conflict markers
+
+**CI gate** (`.github/workflows/quality-gate.yml`):
+- health quick check + `pr-check.sh --dir .` + Gitleaks secret scan
+- mypy type-check on Python scripts
+- PHPCS + phpmd + phpcpd on changed PHP files
+- CodeQL security analysis (Python + JavaScript)
 
 For merge protection, set GitHub branch protection on `main` and require the `quality-gate` status check.
 
