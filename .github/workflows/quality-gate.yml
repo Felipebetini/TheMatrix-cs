@@ -6,6 +6,7 @@ on:
     branches: [main]
 
 jobs:
+  # ── Vault quality (shell, python, markdown) ───────────────────
   quality:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -32,3 +33,146 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── Python type checking ──────────────────────────────────────
+  typecheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install mypy
+        run: pip install mypy
+
+      - name: Type check scripts
+        run: |
+          mypy scripts/matrix_db.py \
+               scripts/matrix-dashboard.py \
+               scripts/track-tool.py \
+               scripts/track-usage-live.py \
+               --ignore-missing-imports \
+               --no-strict-optional \
+               --warn-return-any \
+               --warn-unused-ignores
+
+  # ── WordPress PHP quality (PHPCS) ────────────────────────────
+  php-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: cs2pr
+
+      - name: Install PHPCS + WordPress Coding Standards + phpmd + phpcpd
+        run: |
+          composer global require --no-interaction \
+            squizlabs/php_codesniffer \
+            wp-coding-standards/wpcs \
+            phpcompatibility/phpcompatibility-wp \
+            phpmd/phpmd \
+            sebastian/phpcpd
+          phpcs --config-set installed_paths \
+            "$HOME/.composer/vendor/wp-coding-standards/wpcs,\
+$HOME/.composer/vendor/phpcompatibility/phpcompatibility-wp/PHPCompatibilityWP"
+
+      - name: Run PHPCS on changed PHP files
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            FILES=$(git diff --name-only origin/main...HEAD -- '*.php' | head -50)
+          else
+            FILES=$(git diff --name-only HEAD~1 -- '*.php' | head -50)
+          fi
+          if [ -z "$FILES" ]; then
+            echo "No PHP files changed — skipping PHPCS"
+            exit 0
+          fi
+          echo "$FILES" | xargs phpcs \
+            --standard=WordPress \
+            --error-severity=5 \
+            --warning-severity=8 \
+            --report=checkstyle | cs2pr
+
+      - name: Run phpmd (complexity + unused code)
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            FILES=$(git diff --name-only origin/main...HEAD -- '*.php' | head -50)
+          else
+            FILES=$(git diff --name-only HEAD~1 -- '*.php' | head -50)
+          fi
+          if [ -z "$FILES" ]; then
+            echo "No PHP files changed — skipping phpmd"
+            exit 0
+          fi
+          FAILED=0
+          while IFS= read -r f; do
+            [ -f "$f" ] || continue
+            result=$($HOME/.composer/vendor/bin/phpmd "$f" text \
+              codesize,design,unusedcode --minimum-priority 2 2>/dev/null || true)
+            if [ -n "$result" ]; then
+              echo "$result"
+              echo "$result" | grep -qiE "complexity|coupling" && FAILED=1
+            fi
+          done <<< "$FILES"
+          exit $FAILED
+
+      - name: Run phpcpd (copy/paste detection)
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            FILES=$(git diff --name-only origin/main...HEAD -- '*.php' | head -50)
+          else
+            FILES=$(git diff --name-only HEAD~1 -- '*.php' | head -50)
+          fi
+          if [ -z "$FILES" ]; then
+            echo "No PHP files changed — skipping phpcpd"
+            exit 0
+          fi
+          EXISTING=$(while IFS= read -r f; do [ -f "$f" ] && echo "$f"; done <<< "$FILES")
+          [ -z "$EXISTING" ] && exit 0
+          $HOME/.composer/vendor/bin/phpcpd \
+            --min-lines 6 --min-tokens 50 \
+            $EXISTING || true
+
+  # ── CodeQL security analysis ──────────────────────────────────
+  codeql:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    strategy:
+      matrix:
+        language: [python, javascript]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Init CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Analyse
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:${{ matrix.language }}
