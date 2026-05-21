@@ -128,11 +128,36 @@ rm /tmp/matrix-ticket.flag
 # → http://localhost:2025
 ```
 
-The dashboard shows active agent, current tool, Gate E status, and a live event log. It reads `/tmp/matrix-state.json` and `/tmp/matrix-events.jsonl` written by the PreToolUse hook.
+The dashboard auto-starts when you run `./scripts/matrix.sh`, so this step is only needed if you want it open before starting a session.
+
+The dashboard has two tabs:
+- **LIVE** — active agent, current tool, Gate E status, 11 bottleneck signals, live event log with token counts
+- **HISTORY** — saved sessions, patterns per project, cross-project signal insights
 
 ---
 
-## Step 7b — Enable Codex telemetry (optional)
+## Step 7b — Initialise the session database (recommended)
+
+The Matrix stores session signals and RSI data in a local SQLite DB (`data/matrix.db`). Run once after setup to populate all your project RSI files:
+
+```bash
+python3 scripts/matrix_db.py ingest-rsi
+```
+
+After that, sessions are saved automatically at Gate E close. To query:
+
+```bash
+python3 scripts/matrix_db.py report --project my-project   # what Smith reads at session start
+python3 scripts/matrix_db.py history                        # recent sessions
+python3 scripts/matrix_db.py patterns                       # aggregated per project
+python3 scripts/matrix_db.py insights                       # cross-project signal heatmap
+```
+
+The HISTORY tab in the dashboard shows the same data visually.
+
+---
+
+## Step 7d — Enable Codex telemetry (optional)
 
 Codex hooks are auto-installed when you launch Codex through `matrix.sh` or `activate.sh`.
 Use manual setup only as a fallback:

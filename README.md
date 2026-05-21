@@ -219,14 +219,26 @@ The Matrix is built on six mechanisms that enforce reliability at the OS level, 
 
 A terminal-style dashboard served locally on `localhost:2025`. Commands are in [Quick start](#quick-start).
 
-Shows in real time:
-- Active agent and project
-- Current model
-- Current tool being called (updated on every PreToolUse event)
-- Gate E armed or clear
-- Live event log with timestamps
+The dashboard auto-starts when you run `./scripts/matrix.sh`. Run `./scripts/dashboard.sh` only if you want it standalone.
 
-The PreToolUse hook (`scripts/track-tool.py`) writes every tool call to `/tmp/matrix-state.json` and `/tmp/matrix-events.jsonl`. The dashboard polls those files every second. Python stdlib only, no pip installs. The Matrix rain animation is canvas-based with no libraries.
+**Two tabs:**
+
+- **LIVE** — active agent, current model, current tool call, Gate E status, 11 bottleneck signals (token burn rate, cache hit, rework index, doom loop, read/edit ratio, context pressure, and more), live event log with token counts colour-coded green/yellow/red.
+- **HISTORY** — saved sessions with all signals, patterns by project with model breakdown, cross-project insights (signal heatmap across all your projects).
+
+**Session storage** — after each ticket closes at Gate E, the session is saved to a local SQLite DB (`data/matrix.db`). Over time this builds a pattern library per project and across projects. Smith reads a DB report at the start of every session to front-load knowledge:
+
+```bash
+python3 scripts/matrix_db.py report --project my-project  # what Smith reads
+python3 scripts/matrix_db.py history --project my-project # recent sessions
+python3 scripts/matrix_db.py patterns                      # aggregated stats
+python3 scripts/matrix_db.py insights                      # cross-project heatmap
+python3 scripts/matrix_db.py ingest-rsi                    # first-time: load all RSI.yaml files into DB
+```
+
+**Logo** — the `THE MATRIX` title uses VT323 (retro CRT monospace font) with a CSS clip-path glitch animation. A random glitch fires every 5–14s. An intense glitch fires once when Gate E arms or a doom loop is detected.
+
+The PreToolUse hook (`scripts/track-tool.py`) writes every tool call to `/tmp/matrix-state.json` and `/tmp/matrix-events.jsonl`. The dashboard polls those files every 2s. Python stdlib only, no pip installs. The Matrix rain animation is canvas-based with no libraries.
 
 ---
 
@@ -287,10 +299,26 @@ the-matrix/
 │   ├── gate-check.sh            <- Stop hook, the Ralph Loop enforcer
 │   ├── track-tool.py            <- PreToolUse hook, writes dashboard state
 │   ├── matrix-dashboard.py      <- web server (Python stdlib, no pip)
-│   └── dashboard.sh             <- dashboard launcher
+│   ├── matrix_db.py             <- session storage CLI (save, report, insights)
+│   ├── dashboard.sh             <- dashboard launcher (ensure/start/test/stop)
+│   ├── version.sh               <- semver bump + CHANGELOG helper
+│   ├── pr-check.sh              <- pre-PR code quality check (PHP/JS/CSS)
+│   └── health-check.sh          <- vault health check (syntax, links, parity)
 │
 ├── dashboard/
-│   └── index.html               <- Matrix rain and live event log
+│   ├── index.html               <- HTML structure
+│   ├── app.js                   <- boot, poll loop, tab switching
+│   ├── state.js                 <- shared state object
+│   ├── dashboard.css            <- all styles
+│   └── components/
+│       ├── bottleneck.js        <- 11 bottleneck signals
+│       ├── history.js           <- sessions, patterns, cross-project insights
+│       ├── logo.js              <- VT323 font + glitch animation
+│       ├── graphs.js            <- token graph + usage stats charts
+│       └── event-log.js  header.js  token-panel.js  drawers.js
+│
+├── data/
+│   └── .gitkeep                 <- matrix.db created here (gitignored)
 │
 ├── .claude/
 │   ├── settings.json            <- Stop hook and PreToolUse hook wiring

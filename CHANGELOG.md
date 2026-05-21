@@ -6,6 +6,19 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-05-21
+
+### Added
+- `scripts/pr-check.sh`: pre-PR code quality check — PHP/JS/CSS debug code, hardcoded credentials, missing escaping, merge markers. Exit 0 = pass, Exit 1 = block.
+- `scripts/health-check.sh`: vault health check — shell/Python syntax, dead wikilinks, orphaned files, agent completeness, skill symlinks, runtime parity.
+
+### Changed
+- `README.md`: dashboard section now documents LIVE/HISTORY tabs, SQLite session DB, `matrix_db.py` commands, logo glitch animation. Repository structure updated to reflect current file layout.
+- `SETUP.md`: added Step 7b (DB initialisation with `matrix_db.py ingest-rsi`), updated Step 7 to mention auto-start and LIVE/HISTORY tabs.
+
+### Fixed
+- `agents/SMITH.md` Gate E: added `matrix_db.py save SESSION_ID` step before clearing the flag (was missing from private repo too — fixed in both).
+
 ## [0.5.0] - 2026-05-21
 
 ### Added
