@@ -1,12 +1,13 @@
-import { S }                                    from './state.js';
-import { apiUrl }                               from './utils.js';
+import { S }                                          from './state.js';
+import { apiUrl }                                     from './utils.js';
 import { generateMockState, generateMockEvents, MOCK_USAGE_LIVE } from './mock.js';
-import { renderState, renderSessionSelect }     from './components/header.js';
-import { renderEvents }                         from './components/event-log.js';
-import { renderTokenList }                      from './components/token-panel.js';
-import { renderBottlenecks }                    from './components/bottleneck.js';
-import { drawTokensGraph, renderUsageStats }    from './components/graphs.js';
-import { initDrawers }                          from './components/drawers.js';
+import { renderState, renderSessionSelect }           from './components/header.js';
+import { renderEvents }                               from './components/event-log.js';
+import { renderTokenList }                            from './components/token-panel.js';
+import { renderBottlenecks }                          from './components/bottleneck.js';
+import { drawTokensGraph, renderUsageStats }          from './components/graphs.js';
+import { initDrawers }                                from './components/drawers.js';
+import { renderHistory, renderPatterns, populateProjectFilter } from './components/history.js';
 
 // ── Matrix rain ──────────────────────────────────────────────────────────────
 const rainCanvas = document.getElementById('rain');
@@ -35,6 +36,36 @@ function rain() {
 }
 setInterval(rain, 40);
 
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  S.activeTab = tab;
+  document.getElementById('view-live').classList.toggle('view-hidden', tab !== 'live');
+  document.getElementById('view-history').classList.toggle('view-hidden', tab !== 'history');
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+
+  if (tab === 'history') fetchHistory();
+}
+
+// ── Fetch history (only for HISTORY tab) ──────────────────────────────────────
+async function fetchHistory() {
+  try {
+    const project = S.histProjectFilter || null;
+    const qs      = project ? `?project=${encodeURIComponent(project)}&limit=20` : '?limit=20';
+    const [hRes, pRes] = await Promise.all([
+      fetch(`/api/db/history${qs}`),
+      fetch(`/api/db/patterns${project ? `?project=${encodeURIComponent(project)}` : ''}`),
+    ]);
+    if (hRes.ok) S.dbHistory  = await hRes.json();
+    if (pRes.ok) S.dbPatterns = await pRes.json();
+    populateProjectFilter();
+    renderHistory();
+    renderPatterns();
+  } catch {
+    document.getElementById('hist-sessions').innerHTML =
+      '<div class="hist-empty">Could not reach server.</div>';
+  }
+}
+
 // ── Mode toggle ──────────────────────────────────────────────────────────────
 function setModeUI() {
   const btn = document.getElementById('mode-toggle');
@@ -43,29 +74,29 @@ function setModeUI() {
   localStorage.setItem('matrixDashboardMode', S.testMode ? 'test' : 'live');
 }
 
-// ── Poll ─────────────────────────────────────────────────────────────────────
+// ── Live poll ─────────────────────────────────────────────────────────────────
 async function poll() {
   try {
     if (S.testMode) {
-      S.agentState  = generateMockState();
-      S.events      = generateMockEvents();
-      S.usage       = {};
-      S.usageLive   = MOCK_USAGE_LIVE;
+      S.agentState = generateMockState();
+      S.events     = generateMockEvents();
+      S.usage      = {};
+      S.usageLive  = MOCK_USAGE_LIVE;
       renderState(S.agentState);
       renderEvents(S.events);
     } else {
       const [sRes, eRes, uRes, ulRes, uhRes] = await Promise.all([
-        fetch(apiUrl('/api/state',        S.selectedSession)),
-        fetch(apiUrl('/api/events',       S.selectedSession)),
+        fetch(apiUrl('/api/state',      S.selectedSession)),
+        fetch(apiUrl('/api/events',     S.selectedSession)),
         fetch('/api/usage'),
-        fetch(apiUrl('/api/usage-live',   S.selectedSession)),
+        fetch(apiUrl('/api/usage-live', S.selectedSession)),
         fetch('/api/usage-history'),
       ]);
-      if (sRes.ok)  { S.agentState    = await sRes.json();  renderState(S.agentState); }
-      if (eRes.ok)  { S.events        = await eRes.json();  renderEvents(S.events); }
-      if (uRes.ok)  { S.usage         = await uRes.json(); }
-      if (ulRes.ok) { S.usageLive     = await ulRes.json(); }
-      if (uhRes.ok) { S.usageHistory  = await uhRes.json(); }
+      if (sRes.ok)  { S.agentState   = await sRes.json(); renderState(S.agentState); }
+      if (eRes.ok)  { S.events       = await eRes.json(); renderEvents(S.events); }
+      if (uRes.ok)  { S.usage        = await uRes.json(); }
+      if (ulRes.ok) { S.usageLive    = await ulRes.json(); }
+      if (uhRes.ok) { S.usageHistory = await uhRes.json(); }
 
       const ssRes = await fetch('/api/sessions');
       if (ssRes.ok) S.sessions = await ssRes.json();
@@ -84,6 +115,10 @@ async function poll() {
 }
 
 // ── Event listeners ──────────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+});
+
 document.getElementById('mode-toggle').addEventListener('click', () => {
   S.testMode = !S.testMode;
   setModeUI();
@@ -108,6 +143,13 @@ document.getElementById('session-select').addEventListener('change', e => {
   window.history.replaceState({}, '', url.toString());
   poll();
 });
+
+document.getElementById('hist-project-filter').addEventListener('change', e => {
+  S.histProjectFilter = e.target.value;
+  fetchHistory();
+});
+
+document.getElementById('hist-refresh-btn').addEventListener('click', fetchHistory);
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
 setModeUI();

@@ -11,6 +11,14 @@ import glob
 import http.server, json, os, re, sys
 from urllib.parse import parse_qs, urlparse
 
+# Import DB module from same scripts/ directory
+sys.path.insert(0, os.path.dirname(__file__))
+try:
+    import matrix_db as mdb
+    DB_AVAILABLE = True
+except ImportError:
+    DB_AVAILABLE = False
+
 PORT      = 2025
 STATE     = '/tmp/matrix-state.json'
 EVENTS    = '/tmp/matrix-events.jsonl'
@@ -50,6 +58,16 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self._json(self._usage_history())
         elif path == '/api/sessions':
             self._json(self._sessions())
+        elif path == '/api/db/history':
+            project = (query.get('project') or [None])[0]
+            limit   = int((query.get('limit') or ['10'])[0])
+            self._json(mdb.get_history(project=project, limit=limit) if DB_AVAILABLE else [])
+        elif path == '/api/db/patterns':
+            project = (query.get('project') or [None])[0]
+            self._json(mdb.get_patterns(project=project) if DB_AVAILABLE else {})
+        elif path == '/api/db/notes':
+            project = (query.get('project') or [None])[0]
+            self._json(mdb.get_notes(project=project) if DB_AVAILABLE else [])
         else:
             self._static(path)
 
@@ -61,6 +79,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if not ct:
             self.send_error(404)
             return
+        # prevent path traversal
         abs_path = os.path.realpath(os.path.join(DASHBOARD_DIR, url_path.lstrip('/')))
         if not abs_path.startswith(DASHBOARD_DIR + os.sep) and abs_path != DASHBOARD_DIR:
             self.send_error(403)
@@ -207,6 +226,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
 
 if __name__ == '__main__':
+    http.server.ThreadingHTTPServer.allow_reuse_address = True
     server = http.server.ThreadingHTTPServer(('localhost', PORT), Handler)
     print(f'\n  ▶  Matrix dashboard running at http://localhost:{PORT}')
     print(f'     Press Ctrl+C to stop\n')

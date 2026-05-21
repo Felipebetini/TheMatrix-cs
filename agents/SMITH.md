@@ -236,7 +236,13 @@ Close gate checklist:
 [ ] 10f — All unknown fields discovered this session written back to RSI.yaml
 ```
 
-Only after all boxes are checked:
+Only after all boxes are checked, save the session to the Matrix DB:
+```bash
+python3 scripts/matrix_db.py save SESSION_ID
+```
+Replace `SESSION_ID` with the session ID from the dashboard session selector or from `/tmp/matrix-state-*.json` filenames.
+
+Then:
 > "Gate E clear. Ticket closed."
 
 **Remove flag:** run `rm -f /tmp/matrix-ticket.flag`

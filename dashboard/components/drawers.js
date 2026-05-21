@@ -5,4 +5,5 @@ export function initDrawers() {
     const collapsed = body.classList.toggle('collapsed');
     btn.textContent = collapsed ? '▶' : '▼';
   });
+
 }

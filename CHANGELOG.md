@@ -6,11 +6,27 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ## [Unreleased]
 
-### Fixed
-- Codex interactive flow now auto-installs live dashboard hooks from `scripts/activate.sh` after AI selection, so `./scripts/matrix.sh` and `./scripts/matrix.sh <project>` work without manual hook setup.
+## [0.3.0] - 2026-05-21
+
+### Added
+-
+
+### Added
+- SQLite session storage (`scripts/matrix_db.py`): `sessions`, `bottleneck_snapshots`, `ai_notes` tables. DB stored at `data/matrix.db` (gitignored, created on first save).
+- `matrix_db.py save <session_id>`: reads `/tmp` session files, computes all 11 bottleneck signals, writes to DB. CLI also supports `history`, `patterns`, `note`.
+- Dashboard **History tab**: full-page view with sessions list (all signals colour-coded), patterns grid per project showing model breakdown, project filter and refresh.
+- `agents/SMITH.md` Gate E: close protocol now saves session to DB before clearing the flag.
+- `data/` directory added; `data/*.db` gitignored.
 
 ### Changed
-- Documentation updated in `README.md` and `SETUP.md` to reflect Codex hook auto-install behavior, while keeping `./scripts/setup-codex-hooks.sh` as an optional manual fallback.
+- Dashboard tab architecture: `LIVE` and `HISTORY` tabs replace the single-view layout.
+- `matrix-dashboard.py`: `/api/db/history`, `/api/db/patterns`, `/api/db/notes` endpoints; `allow_reuse_address=True` prevents `[Errno 48]` on restart.
+- Dashboard spacing: `#view-live` and `#view-history` are proper flex columns; removed stale `min-height: 100vh`.
+
+### Fixed
+- Codex interactive flow now auto-installs live dashboard hooks from `scripts/activate.sh` after AI selection, so `./scripts/matrix.sh` and `./scripts/matrix.sh <project>` work without manual hook setup.
+- Burn rate calculation: events sorted chronologically before span computation (was producing inflated values).
+- History tab loads correctly in TEST mode.
 
 ## [0.2.0] - 2026-05-21
 

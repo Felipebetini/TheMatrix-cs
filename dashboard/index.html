@@ -17,8 +17,15 @@
 
 <div id="app">
 
+  <!-- ── Header (shared across all tabs) ── -->
   <div id="header">
-    <div id="title">THE MATRIX — LIVE</div>
+    <div id="header-left">
+      <div id="title">THE MATRIX</div>
+      <nav id="tab-bar">
+        <button class="tab active" data-tab="live">LIVE</button>
+        <button class="tab" data-tab="history">HISTORY</button>
+      </nav>
+    </div>
     <div id="header-right">
       <select id="session-select" title="Select dashboard session stream"></select>
       <button id="mode-toggle" title="Toggle test data mode">LIVE</button>
@@ -30,95 +37,133 @@
     </div>
   </div>
 
-  <div id="stats">
-    <div class="stat-box"><div class="stat-label">Agent</div><div class="stat-value dim" id="stat-agent">—</div></div>
-    <div class="stat-box"><div class="stat-label">Project</div><div class="stat-value dim" id="stat-project">—</div></div>
-    <div class="stat-box"><div class="stat-label">Model</div><div class="stat-value dim" id="stat-model">—</div></div>
-    <div class="stat-box"><div class="stat-label">Tool Calls</div><div class="stat-value dim" id="stat-tools">0</div></div>
-    <div class="stat-box"><div class="stat-label">Gate E</div><div class="stat-value dim" id="stat-gate">—</div></div>
-  </div>
+  <!-- ══════════════════════════════════════
+       TAB: LIVE
+  ══════════════════════════════════════ -->
+  <div id="view-live">
 
-  <div id="current-action">
-    <span id="action-label">Now</span>
-    <span id="action-divider">│</span>
-    <span id="action-tool" class="t-other">—</span>
-    <span id="action-target">Waiting for session...</span>
-    <span id="cursor">█</span>
-  </div>
-
-  <div id="mid-row">
-
-    <div id="tokens-panel" class="drawer-panel">
-      <div class="drawer-header" style="cursor:default">
-        <span class="drawer-label">Token Usage (recent events)</span>
-        <span id="tokens-summary-text"></span>
-      </div>
-      <div id="tokens-body">
-        <div id="tok-bottleneck-row"></div>
-        <div id="token-list"></div>
-      </div>
+    <div id="stats">
+      <div class="stat-box"><div class="stat-label">Agent</div><div class="stat-value dim" id="stat-agent">—</div></div>
+      <div class="stat-box"><div class="stat-label">Project</div><div class="stat-value dim" id="stat-project">—</div></div>
+      <div class="stat-box"><div class="stat-label">Model</div><div class="stat-value dim" id="stat-model">—</div></div>
+      <div class="stat-box"><div class="stat-label">Tool Calls</div><div class="stat-value dim" id="stat-tools">0</div></div>
+      <div class="stat-box"><div class="stat-label">Gate E</div><div class="stat-value dim" id="stat-gate">—</div></div>
     </div>
 
-    <div id="bottlenecks">
-      <div id="bottleneck-header">
-        <span>Bottleneck Signals</span>
-        <span id="bottleneck-updated">—</span>
-      </div>
-      <div id="bottleneck-grid">
-        <div class="b-row"><span class="b-title">Stage Time</span><span class="b-value" id="b-stage">—</span></div>
-        <div class="b-row"><span class="b-title">Wait vs Work</span><span class="b-value" id="b-wait-work">—</span></div>
-        <div class="b-row"><span class="b-title">Verify Friction</span><span class="b-value" id="b-verify">—</span></div>
-        <div class="b-row"><span class="b-title">Tool Hotspot</span><span class="b-value" id="b-hotspot">—</span></div>
-        <div class="b-row"><span class="b-title">Queue Pressure</span><span class="b-value" id="b-queue">—</span></div>
-        <div class="b-row"><span class="b-title">Token Burn Rate</span><span class="b-value" id="b-burn">—</span></div>
-        <div class="b-row"><span class="b-title">Cache Hit Rate</span><span class="b-value" id="b-cache">—</span></div>
-        <div class="b-row"><span class="b-title">Rework Index</span><span class="b-value" id="b-rework">—</span></div>
-        <div class="b-row"><span class="b-title">Doom Loop</span><span class="b-value" id="b-doom">—</span></div>
-        <div class="b-row"><span class="b-title">Read/Edit Ratio</span><span class="b-value" id="b-ratio">—</span></div>
-        <div class="b-row"><span class="b-title">Context Pressure</span><span class="b-value" id="b-context">—</span></div>
-      </div>
+    <div id="current-action">
+      <span id="action-label">Now</span>
+      <span id="action-divider">│</span>
+      <span id="action-tool" class="t-other">—</span>
+      <span id="action-target">Waiting for session...</span>
+      <span id="cursor">█</span>
     </div>
 
-  </div>
-
-  <div id="graphs-panel" class="drawer-panel">
-    <div class="drawer-header" id="graphs-drawer-header">
-      <span class="drawer-label">Graphs</span>
-      <div class="drawer-header-right">
-        <span class="chart-summary" id="tok-graph-summary"></span>
-        <button class="drawer-toggle-btn" id="graphs-toggle">▶</button>
-      </div>
-    </div>
-    <div id="graphs-body" class="drawer-body collapsed">
-      <div id="charts-inner">
-        <div class="chart-subpanel">
-          <div class="chart-header"><span>Token Usage — Graph</span></div>
-          <canvas id="tok-graph-canvas" class="chart-canvas" width="600" height="72"></canvas>
-          <div class="chart-meta" id="tok-graph-meta"></div>
+    <div id="mid-row">
+      <div id="tokens-panel" class="drawer-panel">
+        <div class="drawer-header" style="cursor:default">
+          <span class="drawer-label">Token Usage (recent events)</span>
+          <span id="tokens-summary-text"></span>
         </div>
-        <div class="chart-subpanel">
-          <div class="chart-header">
-            <span>Usage Stats (Imported Sessions)</span>
-            <div id="usage-tabs">
-              <span class="usage-tab active" data-range="7">7d</span>
-              <span class="usage-tab" data-range="30">30d</span>
-              <span class="usage-tab" data-range="all">All</span>
-            </div>
+        <div id="tokens-body">
+          <div id="tok-bottleneck-row"></div>
+          <div id="token-list"></div>
+        </div>
+      </div>
+
+      <div id="bottlenecks">
+        <div id="bottleneck-header">
+          <span>Bottleneck Signals</span>
+          <span id="bottleneck-updated">—</span>
+        </div>
+        <div id="bottleneck-grid">
+          <div class="b-row"><span class="b-title">Stage Time</span><span class="b-value" id="b-stage">—</span></div>
+          <div class="b-row"><span class="b-title">Wait vs Work</span><span class="b-value" id="b-wait-work">—</span></div>
+          <div class="b-row"><span class="b-title">Verify Friction</span><span class="b-value" id="b-verify">—</span></div>
+          <div class="b-row"><span class="b-title">Tool Hotspot</span><span class="b-value" id="b-hotspot">—</span></div>
+          <div class="b-row"><span class="b-title">Queue Pressure</span><span class="b-value" id="b-queue">—</span></div>
+          <div class="b-row"><span class="b-title">Token Burn Rate</span><span class="b-value" id="b-burn">—</span></div>
+          <div class="b-row"><span class="b-title">Cache Hit Rate</span><span class="b-value" id="b-cache">—</span></div>
+          <div class="b-row"><span class="b-title">Rework Index</span><span class="b-value" id="b-rework">—</span></div>
+          <div class="b-row"><span class="b-title">Doom Loop</span><span class="b-value" id="b-doom">—</span></div>
+          <div class="b-row"><span class="b-title">Read/Edit Ratio</span><span class="b-value" id="b-ratio">—</span></div>
+          <div class="b-row"><span class="b-title">Context Pressure</span><span class="b-value" id="b-context">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="graphs-panel" class="drawer-panel">
+      <div class="drawer-header" id="graphs-drawer-header">
+        <span class="drawer-label">Graphs</span>
+        <div class="drawer-header-right">
+          <span class="chart-summary" id="tok-graph-summary"></span>
+          <button class="drawer-toggle-btn" id="graphs-toggle">▶</button>
+        </div>
+      </div>
+      <div id="graphs-body" class="drawer-body collapsed">
+        <div id="charts-inner">
+          <div class="chart-subpanel">
+            <div class="chart-header"><span>Token Usage — Graph</span></div>
+            <canvas id="tok-graph-canvas" class="chart-canvas" width="600" height="72"></canvas>
+            <div class="chart-meta" id="tok-graph-meta"></div>
           </div>
-          <canvas id="usage-canvas" class="chart-canvas" width="600" height="72"></canvas>
-          <div class="chart-meta" id="usage-meta">Import usage with `pbpaste | ./scripts/import-session-usage.py`</div>
+          <div class="chart-subpanel">
+            <div class="chart-header">
+              <span>Usage Stats (Imported Sessions)</span>
+              <div id="usage-tabs">
+                <span class="usage-tab active" data-range="7">7d</span>
+                <span class="usage-tab" data-range="30">30d</span>
+                <span class="usage-tab" data-range="all">All</span>
+              </div>
+            </div>
+            <canvas id="usage-canvas" class="chart-canvas" width="600" height="72"></canvas>
+            <div class="chart-meta" id="usage-meta">Import usage with `pbpaste | ./scripts/import-session-usage.py`</div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div id="log-wrapper">
-    <div id="log-header">
-      <span>Event Log</span>
-      <span id="log-count">0 events</span>
+    <div id="log-wrapper">
+      <div id="log-header">
+        <span>Event Log</span>
+        <span id="log-count">0 events</span>
+      </div>
+      <div id="log"></div>
     </div>
-    <div id="log"></div>
-  </div>
+
+  </div><!-- /view-live -->
+
+  <!-- ══════════════════════════════════════
+       TAB: HISTORY
+  ══════════════════════════════════════ -->
+  <div id="view-history" class="view-hidden">
+
+    <div id="hist-toolbar">
+      <div class="hist-filter-group">
+        <span class="hist-filter-label">Project</span>
+        <select id="hist-project-filter">
+          <option value="">All projects</option>
+        </select>
+      </div>
+      <button id="hist-refresh-btn" class="drawer-toggle-btn">↺ Refresh</button>
+    </div>
+
+    <div class="hist-section">
+      <div class="hist-section-header">
+        <span>Sessions</span>
+        <span id="hist-session-count" class="hist-section-meta"></span>
+      </div>
+      <div id="hist-sessions"></div>
+    </div>
+
+    <div class="hist-section">
+      <div class="hist-section-header">
+        <span>Patterns by Project</span>
+        <span class="hist-section-meta">aggregated across all saved sessions</span>
+      </div>
+      <div id="hist-patterns"></div>
+    </div>
+
+  </div><!-- /view-history -->
 
   <div id="footer">
     Matrix Dashboard · localhost:2025 · refreshes every 2s · <span id="last-refresh">—</span>
