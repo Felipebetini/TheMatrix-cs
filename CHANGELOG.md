@@ -9,9 +9,6 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 ## [0.3.0] - 2026-05-21
 
 ### Added
--
-
-### Added
 - SQLite session storage (`scripts/matrix_db.py`): `sessions`, `bottleneck_snapshots`, `ai_notes` tables. DB stored at `data/matrix.db` (gitignored, created on first save).
 - `matrix_db.py save <session_id>`: reads `/tmp` session files, computes all 11 bottleneck signals, writes to DB. CLI also supports `history`, `patterns`, `note`.
 - Dashboard **History tab**: full-page view with sessions list (all signals colour-coded), patterns grid per project showing model breakdown, project filter and refresh.
