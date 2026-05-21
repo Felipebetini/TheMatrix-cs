@@ -6,6 +6,12 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ## [Unreleased]
 
+### Fixed
+- Codex interactive flow now auto-installs live dashboard hooks from `scripts/activate.sh` after AI selection, so `./scripts/matrix.sh` and `./scripts/matrix.sh <project>` work without manual hook setup.
+
+### Changed
+- Documentation updated in `README.md` and `SETUP.md` to reflect Codex hook auto-install behavior, while keeping `./scripts/setup-codex-hooks.sh` as an optional manual fallback.
+
 ## [0.2.0] - 2026-05-21
 
 ### Added
@@ -21,4 +27,3 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ### Added
 - First tagged open-source release baseline.
-

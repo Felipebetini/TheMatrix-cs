@@ -83,9 +83,12 @@ Keep the dashboard open on a second screen while the agent works in your termina
 For live token telemetry:
 
 ```bash
-# one-time for Codex
+# Codex hooks are auto-installed the first time you launch Codex via matrix.sh/activate.sh.
+# Optional manual fallback:
 ./scripts/setup-codex-hooks.sh
 ```
+
+If hooks were installed during launch, restart Codex sessions so they take effect.
 
 The dashboard supports per-session monitoring via a session selector in the header, so parallel tickets (e.g. Claude + Codex in separate terminals) can be observed independently.
 

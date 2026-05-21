@@ -134,11 +134,14 @@ The dashboard shows active agent, current tool, Gate E status, and a live event 
 
 ## Step 7b — Enable Codex telemetry (optional)
 
-If you'll use Codex agents, wire up the usage hooks for live token monitoring in the dashboard:
+Codex hooks are auto-installed when you launch Codex through `matrix.sh` or `activate.sh`.
+Use manual setup only as a fallback:
 
 ```bash
 ./scripts/setup-codex-hooks.sh
 ```
+
+If hooks were just installed, restart Codex sessions so the hooks are loaded.
 
 ---
 

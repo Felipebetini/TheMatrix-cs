@@ -88,6 +88,22 @@ fallback_ai() {
     esac
 }
 
+ensure_codex_hooks() {
+    local hooks_file="$HOME/.codex/hooks.json"
+    local pre_cmd="bash '$VAULT/scripts/track-tool.sh'"
+    local post_cmd="bash '$VAULT/scripts/track-usage-live.sh'"
+
+    if [ ! -f "$hooks_file" ] \
+        || ! grep -Fq "$pre_cmd" "$hooks_file" \
+        || ! grep -Fq "$post_cmd" "$hooks_file"; then
+        echo ""
+        echo "  ℹ️  Codex hooks missing for live dashboard. Installing..."
+        "$VAULT/scripts/setup-codex-hooks.sh"
+        echo "  ⚠️  Restart Codex sessions after this run so hooks are active."
+        echo ""
+    fi
+}
+
 # Override AI if third arg provided (e.g. "codex" when Claude is rate-limited)
 if [ -n "$OVERRIDE_AI" ]; then
     AI="$OVERRIDE_AI"
@@ -136,6 +152,10 @@ elif [ -t 0 ]; then
     fi
 else
     AI=$(primary_ai "$AGENT")
+fi
+
+if [ "$AI" = "codex" ]; then
+    ensure_codex_hooks
 fi
 
 # ─── Context Builder ───────────────────────────────────────────────────────────
