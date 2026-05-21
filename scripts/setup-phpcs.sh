@@ -15,7 +15,13 @@ set -euo pipefail
 AUTO=0
 [ "${1:-}" = "--auto" ] && AUTO=1
 
-COMPOSER_BIN="$HOME/.composer/vendor/bin"
+# ── Detect actual Composer home (varies: ~/.composer vs ~/.config/composer) ──
+if command -v composer &>/dev/null; then
+    COMPOSER_HOME=$(composer global config home 2>/dev/null || echo "$HOME/.composer")
+else
+    COMPOSER_HOME="$HOME/.composer"
+fi
+COMPOSER_BIN="$COMPOSER_HOME/vendor/bin"
 PHPCS="$COMPOSER_BIN/phpcs"
 PHPMD="$COMPOSER_BIN/phpmd"
 PHPCPD="$COMPOSER_BIN/phpcpd"
@@ -44,6 +50,10 @@ if ! command -v composer &>/dev/null; then
     exit 1
 fi
 
+# ── Allow the PHPCS installer plugin (required by Composer ≥2.2) ────────────
+composer global config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true \
+    --no-interaction 2>/dev/null || true
+
 # ── Install all tools via Composer global ─────────────────────
 quiet composer global require --no-interaction \
     squizlabs/php_codesniffer \
@@ -57,12 +67,12 @@ quiet composer global require --no-interaction \
 if [[ ":$PATH:" != *":$COMPOSER_BIN:"* ]]; then
     export PATH="$COMPOSER_BIN:$PATH"
     [ $AUTO -eq 0 ] && echo "" && \
-        echo "  ⚠  Add to ~/.zshrc: export PATH=\"\$HOME/.composer/vendor/bin:\$PATH\""
+        echo "  ⚠  Add to ~/.zshrc: export PATH=\"$COMPOSER_BIN:\$PATH\""
 fi
 
 # ── Register WordPress + Compatibility standards ───────────────
-WPCS_PATH="$HOME/.composer/vendor/wp-coding-standards/wpcs"
-COMPAT_PATH="$HOME/.composer/vendor/phpcompatibility/phpcompatibility-wp/PHPCompatibilityWP"
+WPCS_PATH="$COMPOSER_HOME/vendor/wp-coding-standards/wpcs"
+COMPAT_PATH="$COMPOSER_HOME/vendor/phpcompatibility/phpcompatibility-wp/PHPCompatibilityWP"
 
 "${PHPCS}" --config-set installed_paths "$WPCS_PATH,$COMPAT_PATH" 2>/dev/null || true
 
