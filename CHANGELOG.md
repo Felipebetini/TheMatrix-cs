@@ -6,6 +6,15 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-05-22
+
+### Added
+- `.github/workflows/quality-gate.yml`: phase-1 CI quality gate for PRs/pushes (health quick check, pre-PR quality check, gitleaks secret scan).
+- `scripts/install-git-hooks.sh`: installs a local pre-commit hook that runs `pr-check.sh` and `health-check.sh --quick`.
+
+### Changed
+- `memory/ZION.md`, `policies/RISK_POLICY.md`, and `agents/SMITH.md`: rollback and backup authority clarified — rollback is operator-only, backups are risk-based and not automatic, and high-load sites require explicit operator decision before backup actions.
+
 ## [0.6.1] - 2026-05-21
 
 ## [0.6.0] - 2026-05-21
