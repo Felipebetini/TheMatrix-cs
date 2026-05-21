@@ -66,6 +66,12 @@ Read the output. Note any pending recommendations, recurring signals, cross-proj
 
 Wait. Let the operator dump everything — the full message thread, error messages, screenshots descriptions, anything. Do not interrupt.
 
+Rollback and backup authority:
+- Rollback actions are operator-only.
+- Do not execute rollback commands yourself.
+- Ask for a production backup only when risk justifies server/resource impact.
+- On high-load sites, ask the operator before proposing backup creation.
+
 ---
 
 ## Step 1 — Read and sanitise the ticket

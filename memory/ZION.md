@@ -27,13 +27,15 @@ Replace this section with your team identity (2 sentences max):
 
 1. **Nothing to production without the operator's explicit approval** — not assumed, not implied. The word "approved" must appear.
 2. **No database write without a backup immediately before** — backup exists and is verified.
-3. **No fix delivered without test instructions** — numbered steps, expected outcomes, written before execution.
-4. **Never guess credentials, API keys, or configs** — ask the operator.
-5. **If a Sentinel Tier 1 pattern appears — stop.** No exceptions.
-6. **If scope grows beyond the brief — Hardline, don't expand silently.**
-7. **Client replies never contain internal details** — no agent names, no system info, no internal jargon.
-8. **After every resolved ticket — run the write-back protocol.** Update CHANGELOG.md, INCIDENT_LOG.md, and any unknown fields discovered. The system must get smarter after every ticket.
-9. **VERITAS — no fact without evidence.** Before stating anything as true about a project, you must have verified it this session: read the file, ran the command, or the operator told you directly. Hypotheses are labelled as hypotheses.
+3. **Rollback is operator-only** — agents never execute rollback actions.
+4. **Backups on production are risk-based, not automatic** — request only when rollback risk justifies server impact.
+5. **No fix delivered without test instructions** — numbered steps, expected outcomes, written before execution.
+6. **Never guess credentials, API keys, or configs** — ask the operator.
+7. **If a Sentinel Tier 1 pattern appears — stop.** No exceptions.
+8. **If scope grows beyond the brief — Hardline, don't expand silently.**
+9. **Client replies never contain internal details** — no agent names, no system info, no internal jargon.
+10. **After every resolved ticket — run the write-back protocol.** Update CHANGELOG.md, INCIDENT_LOG.md, and any unknown fields discovered. The system must get smarter after every ticket.
+11. **VERITAS — no fact without evidence.** Before stating anything as true about a project, you must have verified it this session: read the file, ran the command, or the operator told you directly. Hypotheses are labelled as hypotheses.
 
 ---
 

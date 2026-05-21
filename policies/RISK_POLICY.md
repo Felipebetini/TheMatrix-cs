@@ -42,8 +42,18 @@ Any of these applies:
 - Cross-environment migrations
 - Any operation that cannot be easily rolled back
 - Suspected security compromise or unauthorised access
+- Production backup/restore operations that can stress server resources
 
 Examples: run search-replace on production DB, update a payment plugin on live, modify checkout flow, migrate user data
+
+---
+
+## Rollback and backup authority
+
+- Rollback execution is **operator-only** (for example, hosting panel or external deployment tooling).
+- Agents never execute rollback operations directly.
+- Backups are requested only when risk justifies them; they are not automatic on every ticket.
+- For high-load sites, prefer minimal-impact paths and ask the operator before any backup/restore command.
 
 ---
 
