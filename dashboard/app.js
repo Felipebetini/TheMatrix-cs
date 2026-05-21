@@ -8,6 +8,7 @@ import { renderBottlenecks }                          from './components/bottlen
 import { drawTokensGraph, renderUsageStats }          from './components/graphs.js';
 import { initDrawers }                                from './components/drawers.js';
 import { renderHistory, renderPatterns, renderInsights, populateProjectFilter } from './components/history.js';
+import { initLogo, triggerGlitch }                    from './components/logo.js';
 
 // ── Matrix rain ──────────────────────────────────────────────────────────────
 const rainCanvas = document.getElementById('rain');
@@ -110,6 +111,13 @@ async function poll() {
     drawTokensGraph(S.events);
     renderBottlenecks(S.events, S.agentState);
     renderUsageStats();
+
+    // Intense glitch — fires once when a high-signal condition first becomes true
+    const gateArmed  = !!S.agentState?.gate_e_armed;
+    const doomActive = !!(document.getElementById('b-doom')?.textContent?.includes('×'));
+    const highSignal = gateArmed || doomActive;
+    if (highSignal && !poll._wasHighSignal) triggerGlitch(true);
+    poll._wasHighSignal = highSignal;
     document.getElementById('last-refresh').textContent = new Date().toTimeString().slice(0, 8);
   } catch {
     document.getElementById('status-text').textContent = 'SERVER DOWN';
@@ -157,5 +165,6 @@ document.getElementById('hist-refresh-btn').addEventListener('click', fetchHisto
 // ── Boot ─────────────────────────────────────────────────────────────────────
 setModeUI();
 initDrawers();
+initLogo();
 poll();
 setInterval(poll, 2000);

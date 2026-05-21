@@ -6,6 +6,14 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-05-21
+
+### Added
+- Dashboard logo: VT323 font (Google Fonts, monospace fallback) replacing Courier New for the title.
+- Logo glitch animation: RGB chromatic-aberration split (red/cyan pseudo-layers with `clip-path` slices), `skewX` body flicker, and JS character corruption.
+- Random glitch fires every 5–14s. Intense glitch fires once when Gate E arms or a doom loop is detected.
+- `dashboard/components/logo.js`: `initLogo()` and `triggerGlitch(intense)`.
+
 ## [0.4.0] - 2026-05-21
 
 ### Added

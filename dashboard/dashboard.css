@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
 :root {
   --bg: #03120a;
   --panel: rgba(8, 40, 18, 0.78);
@@ -45,10 +47,97 @@ canvas#rain {
   flex-shrink: 0;
 }
 #title {
-  font-size: 1.3rem;
-  font-weight: bold;
-  letter-spacing: 0.2em;
-  text-shadow: 0 0 8px rgba(125,255,95,0.6);
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 2.2rem;
+  font-weight: normal;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  text-shadow: 0 0 12px rgba(125,255,95,0.7), 0 0 24px rgba(125,255,95,0.25);
+  position: relative;
+  line-height: 1;
+  cursor: default;
+  user-select: none;
+}
+
+/* Glitch pseudo-layers */
+#title::before,
+#title::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  pointer-events: none;
+  opacity: 0;
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
+}
+
+#title.glitching::before,
+#title.glitch-intense::before {
+  opacity: 1;
+  color: #ff3333;
+  text-shadow: none;
+  animation-name: glitch-red;
+  animation-timing-function: steps(1);
+  animation-fill-mode: forwards;
+}
+#title.glitching::before      { animation-duration: 0.38s; }
+#title.glitch-intense::before { animation-duration: 0.62s; }
+
+#title.glitching::after,
+#title.glitch-intense::after {
+  opacity: 1;
+  color: #33ffee;
+  text-shadow: none;
+  animation-name: glitch-cyan;
+  animation-timing-function: steps(1);
+  animation-fill-mode: forwards;
+}
+#title.glitching::after      { animation-duration: 0.38s; }
+#title.glitch-intense::after { animation-duration: 0.62s; }
+
+#title.glitching,
+#title.glitch-intense {
+  animation-name: glitch-body;
+  animation-timing-function: steps(1);
+  animation-fill-mode: forwards;
+}
+#title.glitching      { animation-duration: 0.38s; }
+#title.glitch-intense { animation-duration: 0.62s; }
+
+@keyframes glitch-body {
+  0%   { transform: skewX(0); }
+  12%  { transform: skewX(-3deg) translateX(2px); }
+  25%  { transform: skewX(0); }
+  37%  { transform: skewX(2deg) translateX(-2px); }
+  50%  { transform: skewX(0); }
+  62%  { transform: skewX(-1.5deg); }
+  75%  { transform: skewX(0); }
+  87%  { transform: skewX(2.5deg) translateX(1px); }
+  100% { transform: skewX(0); }
+}
+
+@keyframes glitch-red {
+  0%   { clip-path: inset(12% 0 75% 0); transform: translateX(-5px); }
+  14%  { clip-path: inset(55% 0 20% 0); transform: translateX(4px); }
+  28%  { clip-path: inset(78% 0 6% 0);  transform: translateX(-6px); }
+  42%  { clip-path: inset(28% 0 48% 0); transform: translateX(3px); }
+  56%  { clip-path: inset(6% 0 70% 0);  transform: translateX(-4px); }
+  70%  { clip-path: inset(62% 0 15% 0); transform: translateX(5px); }
+  84%  { clip-path: inset(40% 0 38% 0); transform: translateX(-3px); }
+  100% { clip-path: inset(0 0 100% 0);  transform: translateX(0); opacity: 0; }
+}
+
+@keyframes glitch-cyan {
+  0%   { clip-path: inset(60% 0 15% 0); transform: translateX(5px); }
+  14%  { clip-path: inset(18% 0 58% 0); transform: translateX(-4px); }
+  28%  { clip-path: inset(6% 0 78% 0);  transform: translateX(6px); }
+  42%  { clip-path: inset(72% 0 10% 0); transform: translateX(-5px); }
+  56%  { clip-path: inset(35% 0 42% 0); transform: translateX(3px); }
+  70%  { clip-path: inset(10% 0 68% 0); transform: translateX(-6px); }
+  84%  { clip-path: inset(80% 0 4% 0);  transform: translateX(4px); }
+  100% { clip-path: inset(0 0 100% 0);  transform: translateX(0); opacity: 0; }
 }
 #header-right {
   display: flex;
