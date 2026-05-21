@@ -6,6 +6,22 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-05-21
+
+### Added
+- `projects` table in DB: slug, name, url, language, multisite, critical_flows, risk_zones, primary_playbooks, do_not_touch, special_notes — populated from RSI.yaml.
+- `matrix_db.py ingest-rsi [slug]`: reads RSI.yaml, upserts into DB. No-arg form ingests all projects. Auto-runs on every `save`.
+- `matrix_db.py report [--project slug]`: AI-readable report — session history, averages vs cross-project benchmarks, RSI context, pending notes, signal frequency bar chart.
+- `matrix_db.py insights`: cross-project signal heatmap and hot projects CLI summary.
+- Dashboard History tab: **Cross-Project Insights** card — signal heatmap, hot projects, pending recommendations.
+- `/api/db/insights` and `/api/db/report` endpoints.
+- `agents/SMITH.md` Step B.7: reads DB report at session start.
+- `dashboard.sh ensure`: starts server if not running, silent if already up.
+- `matrix.sh`: calls `dashboard.sh ensure` on every launch.
+
+### Fixed
+- `scripts/version.sh`: no longer inserts empty `### Added\n-` placeholder when `[Unreleased]` already has content — moves existing content to the new version section instead.
+
 ## [0.3.0] - 2026-05-21
 
 ### Added

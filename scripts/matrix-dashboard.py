@@ -68,6 +68,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
         elif path == '/api/db/notes':
             project = (query.get('project') or [None])[0]
             self._json(mdb.get_notes(project=project) if DB_AVAILABLE else [])
+        elif path == '/api/db/insights':
+            self._json(mdb.get_cross_project_insights() if DB_AVAILABLE else {})
+        elif path == '/api/db/report':
+            project = (query.get('project') or [None])[0]
+            self._json({'report': mdb.get_report(project=project)} if DB_AVAILABLE else {'report': ''})
         else:
             self._static(path)
 

@@ -10,6 +10,7 @@ export const S = {
   sessions:            [],
   dbHistory:           [],
   dbPatterns:          {},
+  dbInsights:          {},
   histProjectFilter:   '',
   activeTab:           'live',
   selectedSession:     params.get('session') || '',

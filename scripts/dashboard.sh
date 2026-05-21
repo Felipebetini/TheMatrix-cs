@@ -12,6 +12,20 @@ PID_FILE="/tmp/matrix-dashboard.pid"
 
 case "${1:-start}" in
 
+  ensure)
+    # Start silently if not running — used by matrix.sh on every session start
+    if [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
+      echo "  Dashboard already running at http://localhost:$PORT"
+    elif lsof -ti ":$PORT" &>/dev/null; then
+      echo "  Dashboard already running at http://localhost:$PORT (external process)"
+    else
+      python3 "$VAULT/scripts/matrix-dashboard.py" &
+      echo $! > "$PID_FILE"
+      sleep 0.5
+      echo "  ▶  Dashboard started at http://localhost:$PORT"
+    fi
+    ;;
+
   stop)
     if [ -f "$PID_FILE" ]; then
       kill "$(cat "$PID_FILE")" 2>/dev/null

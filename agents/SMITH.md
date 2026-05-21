@@ -52,6 +52,16 @@ Before asking for the ticket, run the pre-ticket git setup from `policies/GIT_WO
 
 Skip this step if the project deploys via SFTP (no git repo).
 
+**Step B.7 — Load session intelligence from DB:**
+
+Run the Matrix DB report for this project:
+
+```bash
+python3 scripts/matrix_db.py report --project [slug]
+```
+
+Read the output. Note any pending recommendations, recurring signals, cross-project benchmarks, and RSI critical flows. Skip silently if the DB is unavailable or has no data yet.
+
 **Step C — Take the ticket dump:**
 
 Wait. Let the operator dump everything — the full message thread, error messages, screenshots descriptions, anything. Do not interrupt.

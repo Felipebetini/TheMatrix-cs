@@ -39,19 +39,50 @@ DATE="$(date +%Y-%m-%d)"
 echo "$NEXT" > "$VERSION_FILE"
 
 python3 - "$CHANGELOG_FILE" "$NEXT" "$DATE" <<'PY'
-import sys
+import sys, re
 from pathlib import Path
 
 path = Path(sys.argv[1])
-ver = sys.argv[2]
+ver  = sys.argv[2]
 date = sys.argv[3]
 text = path.read_text()
-needle = "## [Unreleased]\n"
-if needle not in text:
+
+parts = text.split("## [Unreleased]\n", 1)
+if len(parts) != 2:
     raise SystemExit("CHANGELOG missing '## [Unreleased]' section")
-insert = f"\n## [{ver}] - {date}\n\n### Added\n-\n"
-text = text.replace(needle, needle + insert, 1)
-path.write_text(text)
+
+before, after = parts
+
+# Find where the next version section starts
+next_ver = re.search(r'^## \[', after, re.MULTILINE)
+if next_ver:
+    unreleased_body = after[:next_ver.start()]
+    rest            = after[next_ver.start():]
+else:
+    unreleased_body = after
+    rest            = ''
+
+unreleased_body = unreleased_body.strip()
+
+if unreleased_body:
+    # [Unreleased] has content — move it to the new version section
+    new_text = (
+        before +
+        "## [Unreleased]\n\n" +
+        f"## [{ver}] - {date}\n\n" +
+        unreleased_body + "\n\n" +
+        rest
+    )
+else:
+    # [Unreleased] is empty — add an empty version header, no placeholder
+    new_text = (
+        before +
+        "## [Unreleased]\n\n" +
+        f"## [{ver}] - {date}\n\n" +
+        rest
+    )
+
+path.write_text(new_text)
 PY
 
 echo "Version bumped: $CURR -> $NEXT"

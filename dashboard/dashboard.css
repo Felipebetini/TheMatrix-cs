@@ -544,3 +544,52 @@ canvas#rain {
 }
 .hist-pattern-label { color: var(--text-dim); }
 .hist-pattern-val   { color: var(--accent); text-align: right; }
+
+/* ── Cross-project Insights ──────────────── */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.8rem;
+  padding: 0.8rem;
+}
+.insight-card {
+  background: rgba(3, 24, 11, 0.78);
+  border: 1px solid #1a6f3d;
+  border-radius: 4px;
+  padding: 0.7rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.insight-card-title {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(26,111,61,0.3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.insight-signals { display: flex; flex-direction: column; gap: 0.15rem; }
+.insight-signal-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 36px 52px;
+  gap: 0.4rem;
+  align-items: center;
+  font-size: 0.68rem;
+}
+.insight-signal-name { color: var(--text-dim); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.insight-bar  { font-size: 0.55rem; letter-spacing: -0.02em; }
+.insight-pct  { font-size: 0.72rem; font-weight: bold; text-align: right; }
+.insight-count{ font-size: 0.6rem; color: var(--text-dim); text-align: right; }
+.insight-hot-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.2rem 0;
+  font-size: 0.68rem;
+  border-bottom: 1px solid rgba(26,111,61,0.15);
+}
+.insight-hot-row:last-child { border-bottom: none; }

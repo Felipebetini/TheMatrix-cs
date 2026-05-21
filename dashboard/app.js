@@ -7,7 +7,7 @@ import { renderTokenList }                            from './components/token-p
 import { renderBottlenecks }                          from './components/bottleneck.js';
 import { drawTokensGraph, renderUsageStats }          from './components/graphs.js';
 import { initDrawers }                                from './components/drawers.js';
-import { renderHistory, renderPatterns, populateProjectFilter } from './components/history.js';
+import { renderHistory, renderPatterns, renderInsights, populateProjectFilter } from './components/history.js';
 
 // ── Matrix rain ──────────────────────────────────────────────────────────────
 const rainCanvas = document.getElementById('rain');
@@ -51,15 +51,18 @@ async function fetchHistory() {
   try {
     const project = S.histProjectFilter || null;
     const qs      = project ? `?project=${encodeURIComponent(project)}&limit=20` : '?limit=20';
-    const [hRes, pRes] = await Promise.all([
+    const [hRes, pRes, iRes] = await Promise.all([
       fetch(`/api/db/history${qs}`),
       fetch(`/api/db/patterns${project ? `?project=${encodeURIComponent(project)}` : ''}`),
+      fetch('/api/db/insights'),
     ]);
     if (hRes.ok) S.dbHistory  = await hRes.json();
     if (pRes.ok) S.dbPatterns = await pRes.json();
+    if (iRes.ok) S.dbInsights = await iRes.json();
     populateProjectFilter();
     renderHistory();
     renderPatterns();
+    renderInsights();
   } catch {
     document.getElementById('hist-sessions').innerHTML =
       '<div class="hist-empty">Could not reach server.</div>';

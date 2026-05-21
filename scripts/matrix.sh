@@ -4,16 +4,15 @@
 # ╚══════════════════════════════════════════════════════════════╝
 #
 # Usage:
-#   ./scripts/matrix.sh                       ← Smith asks project + LLM
-#   ./scripts/matrix.sh my-project            ← pre-load project, asks which LLM
-#   ./scripts/matrix.sh my-project claude     ← force Claude
-#   ./scripts/matrix.sh my-project codex      ← force Codex
-#   ./scripts/matrix.sh my-project gemini     ← force Gemini (Oracle only)
-#   ./scripts/activate.sh status              ← check which CLIs are installed
+#   ./scripts/matrix.sh                        ← Smith asks which project + select AI
+#   ./scripts/matrix.sh testa-omega3           ← pre-loads project, select AI
+#   ./scripts/matrix.sh testa-omega3 claude    ← Claude
+#   ./scripts/matrix.sh testa-omega3 codex     ← Codex
+#   ./scripts/matrix.sh testa-omega3 gemini    ← Gemini (Oracle only)
 #
 # Pipeline flow:
 #   Smith orchestrates everything internally using sub-agents.
-#   Smith → Cypher → Worker → Tester → Seraph → Gate E
+#   Smith → Commander → Worker → Morpheus → [Seraph gate] → Gate E
 #   All chaining happens inside the Smith session — no shell glue needed.
 
 VAULT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -22,44 +21,21 @@ FORCE_AI="${2:-}"
 
 export MATRIX_VAULT="$VAULT"
 
-# ─── Pre-flight: first-run setup ──────────────────────────────────────────────
-
-if grep -q "ZION NOT CONFIGURED" "$VAULT/memory/ZION.md" 2>/dev/null; then
-    echo ""
-    echo "  Looks like this is your first time running The Matrix."
-    echo "  Let's set it up for your team before we start."
-    echo ""
-    read -r -p "  Run setup now? [Y/n] " run_setup
-    if [[ ! "$run_setup" =~ ^[Nn]$ ]]; then
-        bash "$VAULT/scripts/setup.sh"
-        echo ""
-        read -r -p "  Setup done. Launch Matrix now? [Y/n] " launch_now
-        [[ "$launch_now" =~ ^[Nn]$ ]] && exit 0
-    fi
-fi
-
-# Warn about unfilled project placeholders (but don't block)
-if [ -n "$PROJECT" ] && grep -q "project-slug\|/path/to/project" "$VAULT/projects/$PROJECT/RSI.yaml" 2>/dev/null; then
-    echo ""
-    echo "  ⚠️  projects/$PROJECT/RSI.yaml has unfilled placeholders."
-    echo "     Run ./scripts/new-project.sh $PROJECT to fill them in, or edit manually."
-    echo ""
-    read -r -p "  Continue anyway? [y/N] " confirm
-    [[ "$confirm" =~ ^[Yy]$ ]] || exit 0
-fi
-
 echo ""
 echo "  ▶  Matrix starting${PROJECT:+ — project: $PROJECT}${FORCE_AI:+ — model: $FORCE_AI}"
 echo ""
 
+# Ensure dashboard is running before the session starts
+"$VAULT/scripts/dashboard.sh" ensure
+
 "$VAULT/scripts/activate.sh" smith "$PROJECT" "$FORCE_AI"
 
-# Post-session Gate E check (safety net — Claude has the Stop hook, this catches Codex)
+# Post-session Gate E check (safety net for Codex — Claude has the Stop hook)
 if [ -f "/tmp/matrix-ticket.flag" ]; then
     echo ""
     echo "  ⚠️  Session ended with an active ticket."
     echo "     Gate E close protocol was not completed."
     echo "     Run matrix.sh again to re-enter Smith and finish, or:"
-    echo "     rm /tmp/matrix-ticket.flag  (only if the ticket was dismissed)"
+    echo "     rm /tmp/matrix-ticket.flag  (only if Felipe dismissed the ticket)"
     echo ""
 fi

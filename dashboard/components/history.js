@@ -1,4 +1,5 @@
 import { S } from '../state.js';
+import { formatTokens } from '../utils.js';
 
 function signalLevel(value, warn, danger) {
   if (value == null) return '';
@@ -136,4 +137,71 @@ export function renderPatterns() {
         </div>`).join('')}
     </div>`;
   }).join('') + `</div>`;
+}
+
+// ── Cross-project Insights ────────────────────────────────────────────────────
+export function renderInsights() {
+  const el = document.getElementById('hist-insights');
+  if (!el) return;
+
+  const data = S.dbInsights;
+  if (!data || !data.total_sessions) {
+    el.innerHTML = `<div class="hist-empty">No cross-project data yet. Save more sessions with <code>matrix_db.py save &lt;session_id&gt;</code>.</div>`;
+    return;
+  }
+
+  const hm    = data.signal_heatmap || {};
+  const total = hm.total || 1;
+
+  const signals = [
+    { name: 'Doom Loop',   count: hm.doom_count    || 0, warn: 20, danger: 40 },
+    { name: 'Rework',      count: hm.rework_count  || 0, warn: 30, danger: 60 },
+    { name: 'High Burn',   count: hm.high_burn_count || 0, warn: 30, danger: 60 },
+    { name: 'High Wait',   count: hm.high_wait_count || 0, warn: 20, danger: 50 },
+    { name: 'Low Cache',   count: hm.low_cache_count || 0, warn: 30, danger: 60 },
+    { name: 'High R/E',    count: hm.high_ratio_count || 0, warn: 20, danger: 40 },
+  ].sort((a, b) => b.count - a.count);
+
+  const heatmapHtml = signals.map(s => {
+    const pct  = Math.round((s.count / total) * 100);
+    const cls  = pct >= s.danger ? 'tok-high' : pct >= s.warn ? 'tok-med' : 'tok-low';
+    const bar  = '█'.repeat(Math.round(pct / 10)) + '░'.repeat(10 - Math.round(pct / 10));
+    return `<div class="insight-signal-row">
+      <span class="insight-signal-name">${s.name}</span>
+      <span class="insight-bar ${cls}">${bar}</span>
+      <span class="insight-pct ${cls}">${pct}%</span>
+      <span class="insight-count">${s.count}/${total}</span>
+    </div>`;
+  }).join('');
+
+  const hotHtml = (data.hot_projects || []).slice(0, 5).map(p => `
+    <div class="insight-hot-row">
+      <span class="hist-project">${p.project}</span>
+      <span class="hist-sig">sessions: ${p.sessions}</span>
+      <span class="hist-sig ${p.doom_total > 0 ? 'tok-high' : ''}">doom: ${p.doom_total}</span>
+      <span class="hist-sig ${p.avg_rework > 1 ? 'tok-med' : ''}">rework: ${p.avg_rework}</span>
+      <span class="hist-sig">${p.avg_burn ? formatTokens(p.avg_burn) + '/min' : '—'}</span>
+    </div>`).join('');
+
+  const pendingHtml = (data.pending_notes || []).length
+    ? (data.pending_notes || []).map(n =>
+        `<div class="insight-hot-row"><span class="hist-project">${n.project}</span><span class="hist-badge warn">${n.n} pending</span></div>`
+      ).join('')
+    : `<span class="hist-section-meta">none</span>`;
+
+  el.innerHTML = `
+    <div class="insights-grid">
+      <div class="insight-card">
+        <div class="insight-card-title">Signal Frequency <span class="hist-section-meta">${data.total_sessions} sessions · ${data.total_projects} projects</span></div>
+        <div class="insight-signals">${heatmapHtml}</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-card-title">Hot Projects</div>
+        <div>${hotHtml || '<span class="hist-empty">No data yet</span>'}</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-card-title">Pending Recommendations</div>
+        <div>${pendingHtml}</div>
+      </div>
+    </div>`;
 }
