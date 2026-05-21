@@ -17,7 +17,13 @@ EVENTS    = '/tmp/matrix-events.jsonl'
 USAGE     = '/tmp/matrix-usage.json'
 USAGE_HISTORY = '/tmp/matrix-usage-history.json'
 USAGE_LIVE = '/tmp/matrix-usage-live.json'
-DASHBOARD = os.path.join(os.path.dirname(__file__), '../dashboard/index.html')
+DASHBOARD     = os.path.join(os.path.dirname(__file__), '../dashboard/index.html')
+DASHBOARD_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), '../dashboard'))
+
+STATIC_TYPES = {
+    '.css': 'text/css; charset=utf-8',
+    '.js':  'application/javascript; charset=utf-8',
+}
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
@@ -45,9 +51,21 @@ class Handler(http.server.BaseHTTPRequestHandler):
         elif path == '/api/sessions':
             self._json(self._sessions())
         else:
-            self.send_error(404)
+            self._static(path)
 
     # ── helpers ────────────────────────────────────────────────────────────
+
+    def _static(self, url_path):
+        ext = os.path.splitext(url_path)[1]
+        ct  = STATIC_TYPES.get(ext)
+        if not ct:
+            self.send_error(404)
+            return
+        abs_path = os.path.realpath(os.path.join(DASHBOARD_DIR, url_path.lstrip('/')))
+        if not abs_path.startswith(DASHBOARD_DIR + os.sep) and abs_path != DASHBOARD_DIR:
+            self.send_error(403)
+            return
+        self._file(abs_path, ct)
 
     def _file(self, path, ct):
         try:
