@@ -192,7 +192,12 @@ Pass this to every sub-agent (see `policies/HANDOFF.md` for full format):
 FROM: smith
 TO: [agent]
 PROJECT: [slug]
-...
+RISK: [low|medium|high]
+SUMMARY: [1–2 sentences]
+FIXED_WHEN: [concrete observable outcome — what the operator sees when it works]
+VERIFY_CMD: [exact command to confirm FIXED_WHEN is met]
+DEPLOYMENT: [git|sftp|unknown]
+BACKUP_REQUIRED: [yes|no]
 ZION_CORE:
 - Nothing to production without the operator's explicit "approved"
 - No database write without a confirmed backup immediately before
@@ -218,7 +223,29 @@ Wait for completion.
 Spawn Tester: "Run all available test suites scoped to changed files. Return PASS/FAIL."
 If any suite fails → return to worker for fixes. Do not proceed until Tester PASS.
 
-**Step 3b — Compact context:**
+**Step 3a — FIXED_WHEN independent verification:**
+Before compaction, run the `VERIFY_CMD` from the brief. This is not self-reported — you must run the command and paste the real output:
+```
+Worker claimed FIXED_WHEN: [paste FIXED_WHEN from brief]
+VERIFY_CMD run: [paste exact command]
+Output: [paste actual output]
+Match: yes / no
+```
+If output does not match FIXED_WHEN → send back to worker. Do not proceed to Seraph.
+If VERIFY_CMD was not written in the brief → write one now based on FIXED_WHEN, then run it.
+
+**Step 3b — Commit guard fix loop:**
+When worker's `git commit` is blocked, `/tmp/matrix-pr-issues.md` is written with structured blocking issues. **Never use `--no-verify`.**
+
+Tell the worker:
+1. Read `/tmp/matrix-pr-issues.md`
+2. Fix each listed issue (file + line given)
+3. `git add <fixed files>` and retry the commit
+4. Repeat until the guard passes or doom loop triggers (3 attempts)
+
+If **DOOM LOOP** fires (3 blocks on the same commit) → stop the worker, read `/tmp/matrix-pr-issues.md` yourself, and present the unresolved issues to the operator. The fix approach may be fundamentally wrong.
+
+**Step 3c — Compact context:**
 Before Seraph, compact the context for a focused handoff.
 - On Claude: run `/compact`.
 - On Codex/Gemini: write a concise 3-line summary block.
