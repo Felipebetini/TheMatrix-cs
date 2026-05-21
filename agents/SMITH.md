@@ -213,7 +213,9 @@ Spawn Tester: "Run all available test suites scoped to changed files. Return PAS
 If any suite fails → return to worker for fixes. Do not proceed until Tester PASS.
 
 **Step 3b — Compact context:**
-Before Seraph, run `/compact` to give Seraph a focused view.
+Before Seraph, compact the context for a focused handoff.
+- On Claude: run `/compact`.
+- On Codex/Gemini: write a concise 3-line summary block.
 Write a 3-line status: `Root cause: [X] | Fix: [Y] | Tests: [result] | Ready for Seraph: yes`
 
 **Step 4 — Seraph:**

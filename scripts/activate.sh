@@ -28,6 +28,7 @@ SESSION_SUFFIX="-$SESSION_SAFE"
 STATE_FILE="/tmp/matrix-state${SESSION_SUFFIX}.json"
 EVENTS_FILE="/tmp/matrix-events${SESSION_SUFFIX}.jsonl"
 USAGE_LIVE_FILE="/tmp/matrix-usage-live${SESSION_SUFFIX}.json"
+SELECTED_AI_FILE="${MATRIX_SELECTED_AI_FILE:-}"
 
 export MATRIX_SESSION_ID="$SESSION_SAFE"
 export MATRIX_STATE_FILE="$STATE_FILE"
@@ -156,6 +157,10 @@ fi
 
 if [ "$AI" = "codex" ]; then
     ensure_codex_hooks
+fi
+
+if [ -n "$SELECTED_AI_FILE" ]; then
+    printf '%s\n' "$AI" > "$SELECTED_AI_FILE" 2>/dev/null || true
 fi
 
 # ─── Context Builder ───────────────────────────────────────────────────────────
@@ -325,6 +330,18 @@ build_context() {
             echo ""
             cat "$changelog"
             echo ""
+        fi
+
+        if [ "${AI:-}" = "codex" ] && [ "$AGENT" = "smith" ] && [ -f "$VAULT/scripts/matrix_db.py" ]; then
+            local db_report
+            db_report=$(python3 "$VAULT/scripts/matrix_db.py" report --project "$PROJECT" 2>/dev/null || true)
+            if [ -n "$db_report" ]; then
+                echo "---"
+                echo "# SESSION INTELLIGENCE (MATRIX DB)"
+                echo ""
+                echo "$db_report"
+                echo ""
+            fi
         fi
     fi
 

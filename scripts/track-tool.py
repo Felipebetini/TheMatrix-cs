@@ -4,6 +4,7 @@ Matrix PreToolUse hook — reads tool JSON from stdin, writes to dashboard state
 Claude Code calls this before every tool execution.
 """
 import sys, json, os, time
+import fcntl
 
 sid = (os.environ.get('MATRIX_SESSION_ID') or '').strip()
 suffix = f'-{sid}' if sid else ''
@@ -83,56 +84,67 @@ iso = time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(ts))
 
 # Append event
 try:
-    with open(EVENTS_FILE, 'a') as f:
-        event = {'ts': ts, 'iso': iso, 'tool': tool, 'target': target}
-        if sid:
-            event['session_id'] = sid
-        if prompt_tokens is not None:
-            event['prompt_tokens'] = prompt_tokens
-        if completion_tokens is not None:
-            event['completion_tokens'] = completion_tokens
-        if total_tokens is not None:
-            event['total_tokens'] = total_tokens
-        elif estimated_tokens is not None:
-            event['estimated_tokens'] = estimated_tokens
-        if cost_usd is not None:
-            event['cost_usd'] = round(float(cost_usd), 6)
-        f.write(json.dumps(event) + '\n')
+    event = {'ts': ts, 'iso': iso, 'tool': tool, 'target': target}
+    if sid:
+        event['session_id'] = sid
+    if prompt_tokens is not None:
+        event['prompt_tokens'] = prompt_tokens
+    if completion_tokens is not None:
+        event['completion_tokens'] = completion_tokens
+    if total_tokens is not None:
+        event['total_tokens'] = total_tokens
+    elif estimated_tokens is not None:
+        event['estimated_tokens'] = estimated_tokens
+    if cost_usd is not None:
+        event['cost_usd'] = round(float(cost_usd), 6)
 
-    # Keep file at max 500 lines
-    with open(EVENTS_FILE) as f:
-        lines = f.readlines()
-    if len(lines) > 500:
-        with open(EVENTS_FILE, 'w') as f:
-            f.writelines(lines[-500:])
+    with open(f"{EVENTS_FILE}.lock", 'w') as lockf:
+        fcntl.flock(lockf.fileno(), fcntl.LOCK_EX)
+        with open(EVENTS_FILE, 'a+') as f:
+            f.write(json.dumps(event) + '\n')
+            f.flush()
+            f.seek(0)
+            lines = f.readlines()
+            if len(lines) > 500:
+                f.seek(0)
+                f.truncate()
+                f.writelines(lines[-500:])
+                f.flush()
 except Exception:
     pass
 
 # Update state
+state = {'tool_calls': 0}
 try:
-    with open(STATE_FILE) as f:
-        state = json.load(f)
-except Exception:
-    state = {'tool_calls': 0}
+    with open(f"{STATE_FILE}.lock", 'w') as lockf:
+        fcntl.flock(lockf.fileno(), fcntl.LOCK_EX)
+        try:
+            with open(STATE_FILE) as f:
+                loaded = json.load(f)
+                if isinstance(loaded, dict):
+                    state = loaded
+        except Exception:
+            state = {'tool_calls': 0}
 
-state['last_tool']    = {'name': tool, 'target': target, 'at': ts}
-state['tool_calls']   = state.get('tool_calls', 0) + 1
-state['status']       = 'active'
-state['gate_e_armed'] = os.path.exists('/tmp/matrix-ticket.flag')
-state['last_tokens']  = total_tokens
-if prompt_tokens is not None:
-    state['prompt_tokens_total'] = state.get('prompt_tokens_total', 0) + prompt_tokens
-if completion_tokens is not None:
-    state['completion_tokens_total'] = state.get('completion_tokens_total', 0) + completion_tokens
-if total_tokens is not None:
-    state['tokens_total'] = state.get('tokens_total', 0) + total_tokens
-elif estimated_tokens is not None:
-    state['tokens_estimated_total'] = state.get('tokens_estimated_total', 0) + estimated_tokens
-if cost_usd is not None:
-    state['cost_usd_total'] = round(state.get('cost_usd_total', 0.0) + float(cost_usd), 6)
+        state['last_tool'] = {'name': tool, 'target': target, 'at': ts}
+        state['tool_calls'] = state.get('tool_calls', 0) + 1
+        state['status'] = 'active'
+        state['gate_e_armed'] = os.path.exists('/tmp/matrix-ticket.flag')
+        state['last_tokens'] = total_tokens
+        if prompt_tokens is not None:
+            state['prompt_tokens_total'] = state.get('prompt_tokens_total', 0) + prompt_tokens
+        if completion_tokens is not None:
+            state['completion_tokens_total'] = state.get('completion_tokens_total', 0) + completion_tokens
+        if total_tokens is not None:
+            state['tokens_total'] = state.get('tokens_total', 0) + total_tokens
+        elif estimated_tokens is not None:
+            state['tokens_estimated_total'] = state.get('tokens_estimated_total', 0) + estimated_tokens
+        if cost_usd is not None:
+            state['cost_usd_total'] = round(state.get('cost_usd_total', 0.0) + float(cost_usd), 6)
 
-try:
-    with open(STATE_FILE, 'w') as f:
-        json.dump(state, f)
+        tmp = f"{STATE_FILE}.tmp"
+        with open(tmp, 'w') as f:
+            json.dump(state, f)
+        os.replace(tmp, STATE_FILE)
 except Exception:
     pass

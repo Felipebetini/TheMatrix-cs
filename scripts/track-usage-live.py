@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import json, time, sys, os
+import json, time, sys, os, fcntl
 
 sid = (os.environ.get('MATRIX_SESSION_ID') or '').strip()
 suffix = f'-{sid}' if sid else ''
@@ -52,44 +52,52 @@ if total_tokens is None:
     sys.exit(0)
 
 try:
-    state = json.load(open(OUT))
-    if not isinstance(state, dict):
-        state = {}
+    with open(f"{OUT}.lock", 'w') as lockf:
+        fcntl.flock(lockf.fileno(), fcntl.LOCK_EX)
+        try:
+            with open(OUT) as inf:
+                state = json.load(inf)
+                if not isinstance(state, dict):
+                    state = {}
+        except Exception:
+            state = {}
+
+        state.setdefault('source', 'live_hook')
+        state.setdefault('started_at', int(time.time()))
+        state.setdefault('updated_at', int(time.time()))
+        if sid:
+            state['session_id'] = sid
+        state.setdefault('totals', {
+            'input_tokens': 0,
+            'output_tokens': 0,
+            'cache_read_tokens': 0,
+            'cache_write_tokens': 0,
+            'total_tokens_including_cache': 0,
+        })
+        state.setdefault('timeline', [])
+
+        state['totals']['input_tokens'] += int(input_tokens or 0)
+        state['totals']['output_tokens'] += int(output_tokens or 0)
+        state['totals']['cache_read_tokens'] += int(cache_read or 0)
+        state['totals']['cache_write_tokens'] += int(cache_write or 0)
+        state['totals']['total_tokens_including_cache'] += int(total_tokens or 0)
+
+        bucket = int(time.time() // 60 * 60)
+        added = False
+        for row in state['timeline']:
+            if row.get('ts') == bucket:
+                row['tokens'] = int(row.get('tokens', 0)) + int(total_tokens or 0)
+                added = True
+                break
+        if not added:
+            state['timeline'].append({'ts': bucket, 'tokens': int(total_tokens or 0)})
+
+        state['timeline'] = sorted(state['timeline'], key=lambda x: x.get('ts', 0))[-240:]
+        state['updated_at'] = int(time.time())
+
+        tmp = f"{OUT}.tmp"
+        with open(tmp, 'w') as outf:
+            json.dump(state, outf)
+        os.replace(tmp, OUT)
 except Exception:
-    state = {}
-
-state.setdefault('source', 'live_hook')
-state.setdefault('started_at', int(time.time()))
-state.setdefault('updated_at', int(time.time()))
-if sid:
-    state['session_id'] = sid
-state.setdefault('totals', {
-    'input_tokens': 0,
-    'output_tokens': 0,
-    'cache_read_tokens': 0,
-    'cache_write_tokens': 0,
-    'total_tokens_including_cache': 0,
-})
-state.setdefault('timeline', [])
-
-state['totals']['input_tokens'] += int(input_tokens or 0)
-state['totals']['output_tokens'] += int(output_tokens or 0)
-state['totals']['cache_read_tokens'] += int(cache_read or 0)
-state['totals']['cache_write_tokens'] += int(cache_write or 0)
-state['totals']['total_tokens_including_cache'] += int(total_tokens or 0)
-
-bucket = int(time.time() // 60 * 60)
-added = False
-for row in state['timeline']:
-    if row.get('ts') == bucket:
-        row['tokens'] = int(row.get('tokens', 0)) + int(total_tokens or 0)
-        added = True
-        break
-if not added:
-    state['timeline'].append({'ts': bucket, 'tokens': int(total_tokens or 0)})
-
-state['timeline'] = sorted(state['timeline'], key=lambda x: x.get('ts', 0))[-240:]
-state['updated_at'] = int(time.time())
-
-with open(OUT, 'w') as f:
-    json.dump(state, f)
+    pass

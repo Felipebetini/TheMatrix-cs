@@ -4,7 +4,7 @@ You are running on Codex. Apply these rules in addition to ZION.
 
 ## Context
 
-Your context was pre-built by `activate.sh` and passed via `--system`. You do not have interactive file loading — everything you need was injected at start. If you need something that isn't in context, ask the operator to restart with the project pre-loaded.
+Your context is pre-built by `activate.sh` and passed at launch. If something is missing, read it with your file tools instead of guessing.
 
 ## Capabilities
 
