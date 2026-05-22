@@ -6,6 +6,11 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ## [Unreleased]
 
+## [0.9.2] - 2026-05-22
+
+### Changed
+- `README.md`: added a practical GitHub CLI (`gh`) workflow for version bumping, tagging, pushing, creating releases, and verifying release status.
+
 ## [0.9.1] - 2026-05-22
 
 ### Changed
