@@ -13,6 +13,9 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ## [0.9.1] - 2026-05-22
 
+### Fixed
+- `scripts/setup-phpcs.sh`: detect actual Composer home dynamically via `composer global config home` — macOS Composer ≥2 uses `~/.config/composer`, not `~/.composer`. Allow `dealerdirect/phpcodesniffer-composer-installer` plugin required by Composer ≥2.2. Without this, the already-installed check always missed the binaries and re-ran the full install on every launch.
+
 ### Changed
 - `scripts/dashboard.sh`: `ensure` now opens `http://localhost:2025` when it has to start the dashboard process, while leaving already-running instances untouched.
 
