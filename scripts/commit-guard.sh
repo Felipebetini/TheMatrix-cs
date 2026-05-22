@@ -24,7 +24,7 @@ except:
 " 2>/dev/null)
 
 # Only intercept git commit commands
-if ! echo "$CMD" | grep -qE "git\s+(commit|-C\s+\S+\s+commit)"; then
+if ! echo "$CMD" | grep -qE "git[[:space:]]+(commit|-C[[:space:]]+[^[:space:]]+[[:space:]]+commit)"; then
     exit 0
 fi
 

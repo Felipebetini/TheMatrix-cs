@@ -33,7 +33,7 @@ echo ""
 "$VAULT/scripts/dashboard.sh" ensure
 
 # Ensure PHP code quality tools are installed (silent — runs once, skips if already present)
-"$VAULT/scripts/setup-phpcs.sh" --auto
+"$VAULT/scripts/setup-phpcs.sh" --auto || true
 
 "$VAULT/scripts/activate.sh" smith "$PROJECT" "$FORCE_AI"
 

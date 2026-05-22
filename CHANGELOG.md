@@ -6,6 +6,12 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ## [Unreleased]
 
+## [0.9.4] - 2026-05-22
+
+### Fixed
+- `scripts/matrix.sh`: added `|| true` to `setup-phpcs.sh --auto` — `set -euo pipefail` would crash the launch if Composer or PHP is not installed on the system.
+- `scripts/commit-guard.sh`: replaced `\s`/`\S` with `[[:space:]]`/`[^[:space:]]` in the initial trigger regex — was inconsistent with the WORK_DIR section fixed in v0.9.3, and `\s` is not strictly POSIX in all shells.
+
 ## [0.9.3] - 2026-05-22
 
 ### Security
