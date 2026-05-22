@@ -162,6 +162,32 @@ After pushing the version tag, publish a GitHub Release from that tag:
 
 Historical releases can be created retroactively for older tags.
 
+**GitHub CLI (`gh`) workflow**
+
+```bash
+# one-time auth check
+gh auth status
+
+# bump version (example: patch)
+./scripts/version.sh patch
+
+# commit + push main + push tag
+git add VERSION CHANGELOG.md scripts/dashboard.sh
+git commit -m "fix(dashboard): auto-open on ensure start"
+git tag v0.9.1
+git push origin main
+git push origin v0.9.1
+
+# create release from existing tag
+gh release create v0.9.1 --title "v0.9.1" --notes-file - <<'EOF'
+## Changed
+- scripts/dashboard.sh: ensure now opens localhost:2025 only when it starts the dashboard.
+EOF
+
+# verify
+gh release view v0.9.1
+```
+
 </details>
 
 ---
