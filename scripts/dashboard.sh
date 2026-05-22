@@ -23,6 +23,7 @@ case "${1:-start}" in
       echo $! > "$PID_FILE"
       sleep 0.5
       echo "  ▶  Dashboard started at http://localhost:$PORT"
+      open "http://localhost:$PORT"
     fi
     ;;
 

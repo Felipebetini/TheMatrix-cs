@@ -6,6 +6,11 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-05-22
+
+### Changed
+- `scripts/dashboard.sh`: `ensure` now opens `http://localhost:2025` when it has to start the dashboard process, while leaving already-running instances untouched.
+
 ## [0.9.0] - 2026-05-22
 
 ### Added
