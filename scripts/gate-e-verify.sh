@@ -31,8 +31,24 @@ echo "  ══════════════════"
 PROJECT=""
 SESSION_ID=""
 if [ -f "$META" ]; then
-    PROJECT=$(python3 -c "import json; d=json.load(open('$META')); print(d.get('project',''))" 2>/dev/null)
-    SESSION_ID=$(python3 -c "import json; d=json.load(open('$META')); print(d.get('session_id',''))" 2>/dev/null)
+    PROJECT=$(python3 - "$META" <<'PY' 2>/dev/null
+import json, sys
+try:
+    d = json.load(open(sys.argv[1]))
+    print(d.get('project', ''))
+except Exception:
+    print('')
+PY
+    )
+    SESSION_ID=$(python3 - "$META" <<'PY' 2>/dev/null
+import json, sys
+try:
+    d = json.load(open(sys.argv[1]))
+    print(d.get('session_id', ''))
+except Exception:
+    print('')
+PY
+    )
 fi
 
 [ -n "$PROJECT" ]    && echo "  Project:    $PROJECT"

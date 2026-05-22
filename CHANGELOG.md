@@ -6,6 +6,14 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ## [Unreleased]
 
+## [0.9.3] - 2026-05-22
+
+### Security
+- `scripts/gate-e-verify.sh`: replaced inline Python `-c "...open('$META')..."` with a heredoc passing META as an argument — eliminates shell variable interpolation inside Python string (code injection vector).
+- `scripts/commit-guard.sh`: canonicalise WORK_DIR with `cd && pwd` after extraction; reject any path outside `$HOME` — prevents path traversal via crafted `-C` flags. Changed `\s` to `[[:space:]]` for POSIX portability.
+- `scripts/matrix-dashboard.py`: restrict `Access-Control-Allow-Origin` from `*` to `http://localhost:2025` — server already binds to localhost only, but wildcard CORS was unnecessarily loose.
+- `scripts/track-tool.py`: set mode `0o600` on temp state and events files (`/tmp/matrix-*.json`, `/tmp/matrix-*.jsonl`, lock files) immediately after creation — prevents other local users from reading session telemetry.
+
 ## [0.9.2] - 2026-05-22
 
 ### Changed

@@ -30,8 +30,13 @@ fi
 
 # Extract working directory from -C flag if present
 WORK_DIR=""
-if echo "$CMD" | grep -qE "git\s+-C\s+"; then
-    WORK_DIR=$(echo "$CMD" | grep -oE "\-C\s+\S+" | head -1 | awk '{print $2}' | sed "s|~|$HOME|g")
+if echo "$CMD" | grep -qE "git[[:space:]]+-C[[:space:]]+"; then
+    WORK_DIR=$(echo "$CMD" | grep -oE "\-C[[:space:]]+[^[:space:]]+" | head -1 | awk '{print $2}' | sed "s|~|$HOME|g")
+    # Canonicalise and validate — reject traversal outside home
+    if [ -n "$WORK_DIR" ]; then
+        WORK_DIR="$(cd "$WORK_DIR" 2>/dev/null && pwd || echo '')"
+        [[ "$WORK_DIR" != "$HOME"* ]] && WORK_DIR=""
+    fi
 fi
 
 # Get staged files

@@ -99,8 +99,10 @@ try:
         event['cost_usd'] = round(float(cost_usd), 6)
 
     with open(f"{EVENTS_FILE}.lock", 'w') as lockf:
+        os.chmod(f"{EVENTS_FILE}.lock", 0o600)
         fcntl.flock(lockf.fileno(), fcntl.LOCK_EX)
         with open(EVENTS_FILE, 'a+') as f:
+            os.chmod(EVENTS_FILE, 0o600)
             f.write(json.dumps(event) + '\n')
             f.flush()
             f.seek(0)
@@ -117,6 +119,7 @@ except Exception:
 state = {'tool_calls': 0}
 try:
     with open(f"{STATE_FILE}.lock", 'w') as lockf:
+        os.chmod(f"{STATE_FILE}.lock", 0o600)
         fcntl.flock(lockf.fileno(), fcntl.LOCK_EX)
         try:
             with open(STATE_FILE) as f:
@@ -144,6 +147,7 @@ try:
 
         tmp = f"{STATE_FILE}.tmp"
         with open(tmp, 'w') as f:
+            os.chmod(tmp, 0o600)
             json.dump(state, f)
         os.replace(tmp, STATE_FILE)
 except Exception:
